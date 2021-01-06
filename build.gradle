@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+group 'javafx.skeleton'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+javafx {
+    version = "15"
+    modules = [ 'javafx.web', 'javafx.swing', 'javafx.media', 'javafx.base', 'javafx.graphics',  'javafx.controls', 'javafx.fxml' ]
+}
+
+mainClassName = 'sample.Main'
+
+//To create a runnable jar  in GradleJavaProject\build\libs then java -jar GradleJavaProject.jar
+jar {
+    manifest {
+        attributes 'Main-Class': 'sample.Main'
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
