@@ -1,0 +1,13 @@
+.tab {
+    -fx-background-color: #f0f0f0;
+    -fx-font: 10px "Helvetica Neue" ;
+    -fx-background-radius: 0;
+}
+
+.tab-pane {
+    -fx-tab-min-width:120px;
+    -fx-tab-max-width:120px;
+    -fx-tab-min-height:20px;
+    -fx-tab-max-height:20px;
+    -fx-background-color: #eeeeee;
+}
