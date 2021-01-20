@@ -21,6 +21,8 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.21.0"
     testCompile 'org.mockito:mockito-junit-jupiter:2.21.0'
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.10.0.202012080955-r'
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.4.2'
+
 }
 
 test {
