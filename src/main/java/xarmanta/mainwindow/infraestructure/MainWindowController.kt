@@ -1,9 +1,8 @@
-package xarmanta.mainwindow
+package xarmanta.mainwindow.infraestructure
 
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.scene.layout.StackPane
-import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
 import java.io.File
 import javafx.geometry.Pos
@@ -19,11 +18,8 @@ import javafx.scene.control.Alert.AlertType
 
 import javafx.scene.control.Alert
 import javafx.stage.DirectoryChooser
-import java.util.*
 import org.eclipse.jgit.api.Git
-
-
-
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 
 
 class MainWindowController {
@@ -31,19 +27,25 @@ class MainWindowController {
     lateinit var console: TextFlow
     lateinit var root: StackPane
     lateinit var vBox: VBox
-    var selectedDirectory : File? = null
+    private var blockingLabel: Label? = null
+    var git : Git? = null
 
     fun openRepository(actionEvent: ActionEvent?) {
-        selectedDirectory = chooseDirectory("Choose root of your local git repository")
+        try {
+            git = Git.open(chooseDirectory("Choose root of your local git repository"))
+        } catch (e: RepositoryNotFoundException) {
+            println("Not a git repository")
+        }
     }
 
     fun cloneRepository(actionEvent: ActionEvent?) {
         val directory = chooseDirectory("Choose destination directory")
         val url = askForATest("Insert repository's URL")
         runLongOperation {
-            val git = Git.cloneRepository()
+            git = Git.cloneRepository()
                 .setURI(url)
                 .setDirectory(directory)
+                .setProgressMonitor(blockingLabel?.let { LabelProgressMonitor(it) })
                 .call()
         }
     }
@@ -66,14 +68,18 @@ class MainWindowController {
     fun runLongOperation(operation: Runnable) {
         val toExecute = {
             Platform.runLater{
-                println("Esperando a vewr si acaba")
                 showLoading()
             }
-            operation.run()
-            Platform.runLater{
-                println("Acabo!!")
-                hideLoading()
+            try {
+                operation.run()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                Platform.runLater{
+                    hideLoading()
+                }
             }
+
         }
 
         val onFailure = {
@@ -91,8 +97,8 @@ class MainWindowController {
 
     fun showLoading() {
         val pi = ProgressIndicator(-1.0)
-        val pi2 = Label("Updatable label")
-        val box = HBox(pi, pi2)
+        blockingLabel = Label("Wait while process ends...")
+        val box = HBox(pi, blockingLabel)
         box.alignment = Pos.CENTER
         vBox.setDisable(true)
         root.children.add(box)
@@ -100,6 +106,7 @@ class MainWindowController {
 
     fun hideLoading() {
         vBox.setDisable(false)
+        blockingLabel = null
         root.children.removeLast()
     }
 
