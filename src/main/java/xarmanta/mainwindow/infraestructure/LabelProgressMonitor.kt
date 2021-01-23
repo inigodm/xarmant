@@ -4,7 +4,9 @@ import javafx.application.Platform
 import javafx.scene.control.Label
 import org.eclipse.jgit.lib.BatchingProgressMonitor
 
-class LabelProgressMonitor(val label: Label) : BatchingProgressMonitor() {
+abstract class XarmantProgressMonitor : BatchingProgressMonitor()
+
+class LabelProgressMonitor(val label: Label) : XarmantProgressMonitor() {
 
     override fun onUpdate(taskName: String, workCurr: Int) {
         val s = StringBuilder()

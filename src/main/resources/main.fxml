@@ -53,8 +53,8 @@
          <ButtonBar prefHeight="40.0" prefWidth="200.0">
            <buttons>
              <Button mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Commit" />
-             <Button mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Push" />
-             <Button mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Pull" />
+             <Button fx:id="btnPush" mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Push" onAction="#push"/>
+             <Button fx:id="btnPull" mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Pull" onAction="#pull"/>
            </buttons>
          </ButtonBar>
     <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" VBox.vgrow="ALWAYS">
