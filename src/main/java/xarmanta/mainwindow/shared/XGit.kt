@@ -1,7 +1,13 @@
 package xarmanta.mainwindow.shared
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.revwalk.DepthWalk
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevSort
+import org.eclipse.jgit.revwalk.RevWalk
 import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
+import xarmanta.mainwindow.model.Commit
 
 
 class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
@@ -11,7 +17,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         git = Git.cloneRepository()
             .setURI(config.url)
             .setDirectory(config.directory)
-            .setProgressMonitor(monitor)
+            .setProgressMonitor(this.monitor)
             .call()
         return this
     }
@@ -33,5 +39,15 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             .call()
     }
 
-
+    fun reverseWalk(): MutableList<Commit> {
+        val walk = RevWalk(git.repository)
+        walk.markStart(walk.parseCommit(git.repository.resolve(Constants.HEAD)))
+        walk.sort(RevSort.TOPO) // chronological order
+        val history = mutableListOf<Commit>()
+        for (commit in walk) {
+            history.add(Commit(commit.fullMessage, commit.name, commit.authorIdent.name))
+        }
+        walk.close()
+        return history
+    }
 }

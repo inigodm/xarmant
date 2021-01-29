@@ -1,7 +1,11 @@
 package xarmanta.mainwindow.infraestructure
 
 import javafx.application.Platform
+import javafx.beans.InvalidationListener
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableBooleanValue
+import javafx.beans.value.ObservableObjectValue
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.StackPane
@@ -15,9 +19,12 @@ import xarmanta.shared.KotlinAsyncRunner
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.Alert
+import javafx.scene.control.cell.PropertyValueFactory
 import javafx.stage.DirectoryChooser
+import javafx.util.Callback
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import xarmanta.mainwindow.application.Clone
+import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.shared.GitContext
 import xarmanta.mainwindow.shared.XGit
 import java.net.URL
@@ -30,6 +37,10 @@ class MainWindowController {
     lateinit var vBox: VBox
     lateinit var btnPush: Button
     lateinit var btnPull: Button
+    lateinit var column1: TableColumn<Commit, Commit>
+    lateinit var column2: TableColumn<Commit, String>
+    lateinit var column3: TableColumn<Commit, String>
+    lateinit var table: TableView<Commit>
     var git : XGit? = null
     var context: GitContext? = null
     var isAnyRepoOpen = SimpleBooleanProperty(false)
@@ -43,6 +54,10 @@ class MainWindowController {
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
+        column1.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell() }
+        column1.cellValueFactory = Callback { ObservableCommit(it.value) }
+        column2.cellValueFactory = PropertyValueFactory("sha")
+        column3.cellValueFactory = PropertyValueFactory("description")
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
     }
@@ -54,6 +69,7 @@ class MainWindowController {
             context = GitContext(null, dir)
             git = XGit(context!!, monitor).open()
             isAnyRepoOpen.set(true)
+            loadGraph()
         } catch (e: RepositoryNotFoundException) {
             Alert(AlertType.ERROR, "$dir does not contain a valid git repository").showAndWait()
             openRepository(actionEvent)
@@ -67,6 +83,7 @@ class MainWindowController {
             context = GitContext(url.toString(), directory)
             git = Clone().execute(context!!, monitor)
             isAnyRepoOpen.set(true)
+            loadGraph()
         }
     }
 
@@ -76,6 +93,15 @@ class MainWindowController {
 
     fun pull(actionEvent: ActionEvent?) {
         runLongOperation { git?.pull() }
+    }
+
+    fun loadGraph() {
+        runLongOperation {
+            val commits = git?.reverseWalk()
+            Platform.runLater{
+                commits?.forEach { table.items.add(it) }
+            }
+        }
     }
 
     private fun askForAText(title: String, headerText: String = "", contenText: String = ""): String? {
@@ -136,6 +162,33 @@ class MainWindowController {
     fun hideLoading() {
         vBox.setDisable(false)
         root.children.removeLast()
+    }
+
+}
+
+class ObservableCommit(val commit: Commit): ObservableObjectValue<Commit> {
+    override fun addListener(listener: ChangeListener<in Commit>?) {
+        //no op
+    }
+
+    override fun addListener(listener: InvalidationListener?) {
+        //no op
+    }
+
+    override fun removeListener(listener: InvalidationListener?) {
+        //no op
+    }
+
+    override fun removeListener(listener: ChangeListener<in Commit>?) {
+        //no op
+    }
+
+    override fun getValue(): Commit {
+        return commit
+    }
+
+    override fun get(): Commit {
+        return commit
     }
 
 }

@@ -10,6 +10,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -52,38 +54,34 @@
     </MenuBar>
          <ButtonBar prefHeight="40.0" prefWidth="200.0">
            <buttons>
-             <Button mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Commit" />
-             <Button fx:id="btnPush" mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Push" onAction="#push"/>
-             <Button fx:id="btnPull" mnemonicParsing="false" ButtonBar.buttonData="LEFT" text="Pull" onAction="#pull"/>
+             <Button mnemonicParsing="false" text="Commit" ButtonBar.buttonData="LEFT" />
+             <Button fx:id="btnPush" mnemonicParsing="false" onAction="#push" text="Push" ButtonBar.buttonData="LEFT" />
+             <Button fx:id="btnPull" mnemonicParsing="false" onAction="#pull" text="Pull" ButtonBar.buttonData="LEFT" />
            </buttons>
          </ButtonBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2505567928730512, 0.5" focusTraversable="true" VBox.vgrow="ALWAYS">
       <items>
-        <AnchorPane>
-               <children>
-                  <Pane layoutX="11.0" layoutY="82.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children>
-        </AnchorPane>
+             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="261.0">
+                  <children>
+                     <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                       <columns>
+                         <TableColumn fx:id="column1" prefWidth="75.0" text="C1" />
+                         <TableColumn fx:id="column2" prefWidth="75.0" text="C2" />
+                           <TableColumn fx:id="column3" prefWidth="75.0" text="Column X" />
+                       </columns>
+                     </TableView>
+                  </children>
+               </AnchorPane>
         <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-          <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
-              <children>
-                        <TextFlow fx:id="console" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-              </children>
-            </AnchorPane>
-          </content>
+                  <content>
+                  <TextFlow fx:id="console" prefHeight="523.0" prefWidth="430.0" />
+                  </content>
         </ScrollPane>
-        <AnchorPane>
-          <children>
-            <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" wrapText="false">
-                     <font>
-                <Font size="18.0" fx:id="x1" />
-                     </font>
-                     <textFill>
-                <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
-                     </textFill></Label>
-          </children>
-        </AnchorPane>
+               <SplitPane orientation="VERTICAL" prefHeight="523.0" prefWidth="200.0">
+                 <items>
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                 </items>
+               </SplitPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">

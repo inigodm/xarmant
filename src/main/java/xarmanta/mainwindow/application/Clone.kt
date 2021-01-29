@@ -5,7 +5,7 @@ import xarmanta.mainwindow.shared.GitContext
 import xarmanta.mainwindow.shared.XGit
 
 class Clone {
-    fun execute(config: GitContext, monitor: XarmantProgressMonitor): XGit {
-        return XGit(config).clone(monitor)
+    fun execute(context: GitContext, monitor: XarmantProgressMonitor): XGit {
+        return XGit(context, monitor).clone()
     }
 }
