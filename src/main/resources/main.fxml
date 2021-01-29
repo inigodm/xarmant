@@ -65,21 +65,22 @@
                   <children>
                      <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                        <columns>
-                         <TableColumn fx:id="column1" prefWidth="75.0" text="C1" />
-                         <TableColumn fx:id="column2" prefWidth="75.0" text="C2" />
-                           <TableColumn fx:id="column3" prefWidth="75.0" text="Column X" />
+                         <TableColumn fx:id="column1" editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" sortable="false" text="Branch / tag" />
+                         <TableColumn fx:id="column2" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="Graph" />
+                           <TableColumn fx:id="column3" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="Commit Message" />
                        </columns>
                      </TableView>
                   </children>
                </AnchorPane>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+        <ScrollPane prefHeight="516.0" prefWidth="273.0">
                   <content>
                   <TextFlow fx:id="console" prefHeight="523.0" prefWidth="430.0" />
                   </content>
         </ScrollPane>
-               <SplitPane orientation="VERTICAL" prefHeight="523.0" prefWidth="200.0">
+               <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="523.0" prefWidth="200.0">
                  <items>
-                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0" />
+                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0" />
                  </items>
                </SplitPane>
       </items>

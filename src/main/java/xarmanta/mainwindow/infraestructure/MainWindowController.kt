@@ -37,8 +37,8 @@ class MainWindowController {
     lateinit var vBox: VBox
     lateinit var btnPush: Button
     lateinit var btnPull: Button
-    lateinit var column1: TableColumn<Commit, Commit>
-    lateinit var column2: TableColumn<Commit, String>
+    lateinit var column1: TableColumn<Commit, String>
+    lateinit var column2: TableColumn<Commit, Commit>
     lateinit var column3: TableColumn<Commit, String>
     lateinit var table: TableView<Commit>
     var git : XGit? = null
@@ -54,9 +54,9 @@ class MainWindowController {
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
-        column1.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell() }
-        column1.cellValueFactory = Callback { ObservableCommit(it.value) }
-        column2.cellValueFactory = PropertyValueFactory("sha")
+        column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell() }
+        column2.cellValueFactory = Callback { ObservableCommit(it.value) }
+        column1.cellValueFactory = PropertyValueFactory("branch")
         column3.cellValueFactory = PropertyValueFactory("description")
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
@@ -78,12 +78,14 @@ class MainWindowController {
 
     fun cloneRepository(actionEvent: ActionEvent?) {
         val directory = chooseDirectory("Choose destination directory")
-        val url = URL(askForAText("Insert repository's URL"))
-        runLongOperation {
-            context = GitContext(url.toString(), directory)
-            git = Clone().execute(context!!, monitor)
-            isAnyRepoOpen.set(true)
-            loadGraph()
+        if (directory != null) {
+            val url = URL(askForAText("Insert repository's URL"))
+            runLongOperation {
+                context = GitContext(url.toString(), directory)
+                git = Clone().execute(context!!, monitor)
+                isAnyRepoOpen.set(true)
+                loadGraph()
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package xarmanta.mainwindow.shared
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.DepthWalk
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
@@ -44,8 +45,12 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         walk.markStart(walk.parseCommit(git.repository.resolve(Constants.HEAD)))
         walk.sort(RevSort.TOPO) // chronological order
         val history = mutableListOf<Commit>()
-        for (commit in walk) {
-            history.add(Commit(commit.fullMessage, commit.name, commit.authorIdent.name))
+        walk.forEach {
+            val name = git.nameRev()
+            .addPrefix("refs/heads")
+            .add(it)
+            .call();
+            history.add(Commit(it.fullMessage, it.name, it.authorIdent.name, name.values.firstOrNull()?.toString()?: ""))
         }
         walk.close()
         return history
