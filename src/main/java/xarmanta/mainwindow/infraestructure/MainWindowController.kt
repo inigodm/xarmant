@@ -31,7 +31,7 @@ import java.net.URL
 
 
 class MainWindowController {
-
+    //FXML bindings
     lateinit var console: TextFlow
     lateinit var root: StackPane
     lateinit var vBox: VBox
@@ -41,13 +41,17 @@ class MainWindowController {
     lateinit var column2: TableColumn<Commit, Commit>
     lateinit var column3: TableColumn<Commit, String>
     lateinit var table: TableView<Commit>
+    // Unop de estos dos, o el XGit o su contexto, sobran, no tengo claro aun cual
     var git : XGit? = null
     var context: GitContext? = null
+    // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
+    // Cosas que se levantan en el progressiondicator de las tareas largas
     val pi = ProgressIndicator(-1.0)
     val blockingLabel = Label("")
     private var monitor = LabelProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
+    //TA-DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!
 
     @FXML
     fun initialize() {
@@ -97,6 +101,7 @@ class MainWindowController {
         runLongOperation { git?.pull() }
     }
 
+    // esto no va a ser facil XD pero entrara por aqui
     fun loadGraph() {
         runLongOperation {
             val commits = git?.reverseWalk()
@@ -121,6 +126,7 @@ class MainWindowController {
         return directoryChooser.showDialog(console.scene.window)
     }
 
+    // Corre una tarea asincronamente en background y levanta una pantalla de 'cargando' mientras
     fun runLongOperation(operation: Runnable) {
         val toExecute = {
             Platform.runLater{
@@ -168,6 +174,7 @@ class MainWindowController {
 
 }
 
+// Se encesitaba para el tableview... realmente no necesito que sean observables, pero yo que se....
 class ObservableCommit(val commit: Commit): ObservableObjectValue<Commit> {
     override fun addListener(listener: ChangeListener<in Commit>?) {
         //no op

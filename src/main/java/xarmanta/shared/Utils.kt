@@ -4,7 +4,8 @@ package xarmanta.shared
 import java.io.File
 import java.util.function.Consumer
 import java.util.stream.Stream
-
+// Extension para String para correr comandos con, p.e:  "git pull".runCommand(<path>)
+// redirigiendo las salidas a los consumers
 fun String.runCommand(workingDir: File,
                       consumer: Consumer<String> = Consumer { println(it) },
                       errorConsumer: Consumer<String> = Consumer { System.err.println(it) }) {

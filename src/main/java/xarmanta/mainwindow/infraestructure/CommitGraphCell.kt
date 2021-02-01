@@ -9,7 +9,9 @@ import javafx.scene.shape.Line
 import xarmanta.mainwindow.model.Commit
 import java.io.IOException
 
-
+/**
+ * Celdas de la grafica en el tableview
+ */
 class CommitGraphCell : TableCell<Commit, Commit>() {
     @FXML
     var group: Group? = null
