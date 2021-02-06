@@ -18,7 +18,7 @@ class XGitTest {
 
     @BeforeAll
     fun setup() {
-        Files.walk(Path.of("./test"))
+        /*Files.walk(Path.of("./test"))
             .sorted(Comparator.reverseOrder())
             .map(Path::toFile)
             .forEach(File::delete)
@@ -53,11 +53,11 @@ class XGitTest {
         newCommitNewFile(jgit, "X")
         newCommitNewFile(jgit, "Y")
         newCommitNewFile(jgit, "Z")
-        jgit.close()
+        jgit.close()*/
     }
 
     fun `newCommitNewFile`(jgit: Git, filename: String) {
-        Thread.sleep(2000L)
+        Thread.sleep(1000L)
         Files.createFile(Path.of("./test/$filename"))
         jgit.add().addFilepattern(filename).call();
         jgit.commit().setMessage("Commit $filename").call();
@@ -67,9 +67,8 @@ class XGitTest {
     fun `commits are listed in desired order`() {
         val xgit = XGit(GitContext(null, File("./test")), ConsoleMonitor()).open()
         val commits = xgit.reverseWalkTimed()
-        xgit.main()
         commits.forEach{
-            println("${it.description} ${it.branch}")
+            println("${it.description} ${it.branches}")
         }
     }
 }

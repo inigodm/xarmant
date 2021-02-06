@@ -31,6 +31,9 @@ import java.net.URL
 
 
 class MainWindowController {
+    // Unop de estos dos, o el XGit o su contexto, sobran, no tengo claro aun cual
+    var git : XGit? = null
+    var context: GitContext? = null
     //FXML bindings
     lateinit var console: TextFlow
     lateinit var root: StackPane
@@ -41,9 +44,6 @@ class MainWindowController {
     lateinit var column2: TableColumn<Commit, Commit>
     lateinit var column3: TableColumn<Commit, String>
     lateinit var table: TableView<Commit>
-    // Unop de estos dos, o el XGit o su contexto, sobran, no tengo claro aun cual
-    var git : XGit? = null
-    var context: GitContext? = null
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     // Cosas que se levantan en el progressiondicator de las tareas largas

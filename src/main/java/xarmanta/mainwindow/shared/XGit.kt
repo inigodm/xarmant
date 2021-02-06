@@ -3,16 +3,12 @@ package xarmanta.mainwindow.shared
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.DepthWalk
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevSort
-import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteConfig
 import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
 import xarmanta.mainwindow.model.Commit
-import java.io.File
+
 
 // Clase para wrapear JGit
 class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
@@ -58,21 +54,34 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     fun reverseWalk(): MutableList<Commit> {
-        val walk = RevWalk(git.repository)
-        walk.markStart(walk.parseCommit(git.repository.resolve(Constants.HEAD)))
-        walk.sort(RevSort.TOPO) // chronological order
+        val initialCommit = git.repository.resolve(Constants.HEAD)
         val history = mutableListOf<Commit>()
-        walk.forEach {
-            val name = git.branchList().setContains(it.name).setListMode(ListBranchCommand.ListMode.ALL).call()
-            history.add(Commit(it.fullMessage, it.name, it.authorIdent.name, name[0].name))
-            println(getBrancNames(name))
+        val commitCache = mutableListOf(initialCommit)
+        val mapCommits = mutableMapOf<String, Commit>()
+        while(commitCache.isNotEmpty()) {
+            val actual = commitCache.removeAt(0)
+            val name = git.branchList().setContains(actual.name).setListMode(ListBranchCommand.ListMode.ALL).call()
+            name.forEach { branchName ->
+                run {
+                    val commits = git.log().add(branchName.objectId).call()
+                    commits.forEach { commit ->
+                        run {
+                            if (!mapCommits.contains(commit.toObjectId().name)) {
+                                val newCommit = Commit(commit.fullMessage, commit.name, commit.authorIdent.name,
+                                    mutableSetOf(branchName.name), commit.commitTime)
+                                mapCommits.put(commit.toObjectId().name, newCommit)
+                                history.add(newCommit)
+                                commitCache.add(commit)
+                            } else {
+                                mapCommits.get(commit.toObjectId().name)!!.branches.add(branchName.name)
+                            }
+                        }
+                    }
+                }
+            }
         }
-        walk.close()
+        history.sortByDescending { it.commitTime }
+        //HeapDumper.dumpHeap("headdump.hprof", true)
         return history
-    }
-
-    fun getBrancNames(appearances: List<Ref>) : List<String>{
-        val branch = appearances[0].name.substringAfterLast(File.separator)
-        return appearances.filter { it.name.contains(branch) }.map{ it.name.substringAfter("${File.separator}ref/")}
     }
 }
