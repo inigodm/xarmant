@@ -13,13 +13,17 @@ repositories {
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 }
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    testCompile group: 'io.mockk', name: 'mockk', version: '1.10.0'
+    testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.23'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testCompile "org.assertj:assertj-core:3.11.1"
-    testCompile "org.mockito:mockito-core:2.21.0"
-    testCompile 'org.mockito:mockito-junit-jupiter:2.21.0'
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.10.0.202012080955-r'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.4.2'
 
