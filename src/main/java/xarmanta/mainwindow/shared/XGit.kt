@@ -4,10 +4,23 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revplot.PlotCommit
+import org.eclipse.jgit.revplot.PlotWalk
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
 import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
 import xarmanta.mainwindow.model.Commit
+import org.eclipse.jgit.revplot.PlotCommitList
+
+import org.eclipse.jgit.revplot.PlotLane
+import org.eclipse.jgit.lib.ObjectLoader
+
+import org.eclipse.jgit.treewalk.TreeWalk
+
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevWalk
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxCommitList
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
 
 
 // Clase para wrapear JGit
@@ -54,34 +67,18 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     fun reverseWalk(): MutableList<Commit> {
-        val initialCommit = git.repository.resolve(Constants.HEAD)
-        val history = mutableListOf<Commit>()
-        val commitCache = mutableListOf(initialCommit)
-        val mapCommits = mutableMapOf<String, Commit>()
-        while(commitCache.isNotEmpty()) {
-            val actual = commitCache.removeAt(0)
-            val name = git.branchList().setContains(actual.name).setListMode(ListBranchCommand.ListMode.ALL).call()
-            name.forEach { branchName ->
-                run {
-                    val commits = git.log().add(branchName.objectId).call()
-                    commits.forEach { commit ->
-                        run {
-                            if (!mapCommits.contains(commit.toObjectId().name)) {
-                                val newCommit = Commit(commit.fullMessage, commit.name, commit.authorIdent.name,
-                                    mutableSetOf(branchName.name), commit.commitTime)
-                                mapCommits.put(commit.toObjectId().name, newCommit)
-                                history.add(newCommit)
-                                commitCache.add(commit)
-                            } else {
-                                mapCommits.get(commit.toObjectId().name)!!.branches.add(branchName.name)
-                            }
-                        }
-                    }
-                }
-            }
+        val walk = PlotWalk(git.repository)
+        val allRefs: Collection<Ref> = git.repository.refDatabase.getRefs()
+        for (ref in allRefs) {
+            walk.markStart(walk.parseCommit(ref.objectId))
         }
-        history.sortByDescending { it.commitTime }
-        //HeapDumper.dumpHeap("headdump.hprof", true)
+        val list = JavaFxCommitList()
+        list.source(walk)
+        list.fillTo(Int.MAX_VALUE)
+        val history = mutableListOf<Commit>()
+        list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,
+            "Not Cupported", it.commitTime, mutableSetOf(), it))}
         return history
     }
+
 }

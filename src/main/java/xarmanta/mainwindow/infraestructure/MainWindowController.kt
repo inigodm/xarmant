@@ -28,6 +28,10 @@ import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.shared.GitContext
 import xarmanta.mainwindow.shared.XGit
 import java.net.URL
+import javafx.beans.property.SimpleObjectProperty
+
+import javafx.beans.value.ObservableValue
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
 
 
 class MainWindowController {
@@ -53,12 +57,14 @@ class MainWindowController {
     val box = HBox(pi, blockingLabel)
     //TA-DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!
 
+    val plotRenderer = JavaFxPlotRenderer()
+
     @FXML
     fun initialize() {
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
-        column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell() }
+        column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
         column2.cellValueFactory = Callback { ObservableCommit(it.value) }
         column1.cellValueFactory = PropertyValueFactory("branch")
         column3.cellValueFactory = PropertyValueFactory("description")

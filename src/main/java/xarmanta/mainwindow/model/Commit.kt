@@ -1,3 +1,8 @@
 package xarmanta.mainwindow.model
 
-data class Commit(val description: String, val username: String, val sha: String, val branches: MutableSet<String>, val commitTime: Int)
+import org.eclipse.jgit.revplot.PlotCommit
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
+
+data class Commit(val description: String, val username: String, val sha: String, var branch: String, val commitTime: Int, val branches: MutableSet<String>,
+val plotCommit: PlotCommit<JavaFxLane>?=null
+)

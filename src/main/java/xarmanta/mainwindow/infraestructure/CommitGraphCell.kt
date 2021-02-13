@@ -6,13 +6,14 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.control.TableCell
 import javafx.scene.paint.Color
 import javafx.scene.shape.Line
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
 import xarmanta.mainwindow.model.Commit
 import java.io.IOException
 
 /**
  * Celdas de la grafica en el tableview
  */
-class CommitGraphCell : TableCell<Commit, Commit>() {
+class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Commit>() {
     @FXML
     var group: Group? = null
 
@@ -29,9 +30,7 @@ class CommitGraphCell : TableCell<Commit, Commit>() {
         mLLoader.setController(this)
         try {
             mLLoader.load<Any>()
-            val line = Line(0.0, 0.0, 0.0, 30.0)
-            line.stroke = Color.RED;
-            group!!.children.add(line)
+            renderer.paint(this, commit.plotCommit!!)
             setGraphic(group)
         } catch (e: IOException) {
             e.printStackTrace()
