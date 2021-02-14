@@ -28,6 +28,13 @@ class KotlinAsyncRunner() : CoroutineScope {
         }
     }
 
+    fun runAsyncIO(background: Runnable) {
+        launch { runAsyncIOSuspend { background.run() } }
+    }
+
+    suspend fun runAsyncIOSuspend(background: Runnable) = withContext(Dispatchers.IO) { background.run() }
+
+
     fun runAsyncReThrowable(background: Runnable, shouldRedo: Supplier<Boolean>, delayms: Long = 10000) {
         val job = launch {
             background.run()

@@ -2,10 +2,11 @@ package xarmanta.mainwindow.shared
 
 import xarmanta.mainwindow.shared.exceptions.InvalidUrl
 import java.io.File
+import java.io.Serializable
 import java.net.URL
 
 // Basicamente sera un objeto que podre serializar a archivo de configuracion
-class GitContext {
+class GitContext: Serializable {
     var url: String? = null
     var directory: File? = null
     var user: String? = null

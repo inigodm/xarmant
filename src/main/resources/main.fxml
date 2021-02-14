@@ -31,7 +31,7 @@
             <MenuItem mnemonicParsing="false" text="New" />
             <MenuItem mnemonicParsing="false" onAction="#openRepository" text="Open…" />
             <MenuItem mnemonicParsing="false" onAction="#cloneRepository" text="Clone…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
+            <Menu fx:id="recentRepos" mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="Preferences…" />
             <SeparatorMenuItem mnemonicParsing="false" />

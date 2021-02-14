@@ -4,13 +4,11 @@ import javafx.application.Platform
 import javafx.beans.InvalidationListener
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableObjectValue
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.StackPane
 import javafx.scene.text.TextFlow
-import java.io.File
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
@@ -28,10 +26,12 @@ import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.shared.GitContext
 import xarmanta.mainwindow.shared.XGit
 import java.net.URL
-import javafx.beans.property.SimpleObjectProperty
 
-import javafx.beans.value.ObservableValue
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
+import xarmanta.mainwindow.shared.ConfigFile
+import java.io.*
+import java.nio.file.Files
+import java.nio.file.Path
 
 
 class MainWindowController {
@@ -48,6 +48,7 @@ class MainWindowController {
     lateinit var column2: TableColumn<Commit, Commit>
     lateinit var column3: TableColumn<Commit, String>
     lateinit var table: TableView<Commit>
+    lateinit var recentRepos: Menu
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     // Cosas que se levantan en el progressiondicator de las tareas largas
@@ -56,7 +57,6 @@ class MainWindowController {
     private var monitor = LabelProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
     //TA-DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!
-
     val plotRenderer = JavaFxPlotRenderer()
 
     @FXML
@@ -68,8 +68,14 @@ class MainWindowController {
         column2.cellValueFactory = Callback { ObservableCommit(it.value) }
         column1.cellValueFactory = PropertyValueFactory("branch")
         column3.cellValueFactory = PropertyValueFactory("description")
+        recentRepos.items.addAll(getRecentOpened())
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
+        loadHabitualRepos()
+    }
+
+    private fun getRecentOpened(): List<MenuItem> {
+        return emptyList()
     }
 
     fun openRepository(actionEvent: ActionEvent?) {
@@ -77,12 +83,65 @@ class MainWindowController {
         try {
             dir = chooseDirectory("Choose root of your local git repository")
             context = GitContext(null, dir)
-            git = XGit(context!!, monitor).open()
-            isAnyRepoOpen.set(true)
-            loadGraph()
+            openRepo(context!!)
         } catch (e: RepositoryNotFoundException) {
             Alert(AlertType.ERROR, "$dir does not contain a valid git repository").showAndWait()
             openRepository(actionEvent)
+        }
+    }
+
+    private fun openRepo(context: GitContext) {
+        git = XGit(context!!, monitor).open()
+        isAnyRepoOpen.set(true)
+        loadGraph()
+        saveContext()
+    }
+
+    private fun saveContext() {
+        KotlinAsyncRunner().runAsyncIO {
+            val config = openConfigFile()
+            updateRepository(config, context!!)
+            saveConfigFile(config)
+            Platform.runLater {
+                loadHabitualRepos()
+            }
+        }
+    }
+
+    private fun updateRepository(config: ConfigFile, contxt: GitContext) {
+        val repo = config.repos.filter { it.directory!!.path == contxt.directory!!.path }.firstOrNull()
+        if (repo != null) {
+            config.repos.remove(repo)
+        }
+        config.repos.add(0, contxt)
+    }
+
+    private fun saveConfigFile(config: ConfigFile) {
+        ObjectOutputStream(FileOutputStream(File("config.xar"))).use {
+            it.writeObject(config)
+        }
+    }
+
+    private fun openConfigFile(): ConfigFile {
+        var configFile : ConfigFile
+        if (!Files.exists(Path.of("./config.xar"))) {
+            Files.createFile(Path.of("./config.xar"))
+            saveConfigFile(ConfigFile(mutableListOf()))
+            return ConfigFile(mutableListOf())
+        }
+        ObjectInputStream(FileInputStream(File("./config.xar"))).use {
+            configFile = it.readObject() as ConfigFile
+        }
+        return configFile
+    }
+
+    private fun loadHabitualRepos() {
+        recentRepos.items.clear()
+        openConfigFile()?.repos.forEach {
+                ctxt ->
+            val mnu = MenuItem(ctxt.directory!!.path)
+            mnu.setOnAction { openRepo(ctxt) }
+            recentRepos.items.add(mnu)
         }
     }
 
@@ -112,6 +171,7 @@ class MainWindowController {
         runLongOperation {
             val commits = git?.reverseWalk()
             Platform.runLater{
+                table.items.clear()
                 commits?.forEach { table.items.add(it) }
             }
         }
