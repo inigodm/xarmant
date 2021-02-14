@@ -28,13 +28,10 @@ import xarmanta.mainwindow.shared.XGit
 import java.net.URL
 
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
-import xarmanta.mainwindow.shared.ConfigFile
 import java.io.*
-import java.nio.file.Files
-import java.nio.file.Path
 
 
-class MainWindowController {
+class MainWindowController(val configManager: ConfigManager = ConfigManager(), val plotRenderer: JavaFxPlotRenderer = JavaFxPlotRenderer()) {
     // Unop de estos dos, o el XGit o su contexto, sobran, no tengo claro aun cual
     var git : XGit? = null
     var context: GitContext? = null
@@ -57,7 +54,6 @@ class MainWindowController {
     private var monitor = LabelProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
     //TA-DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!
-    val plotRenderer = JavaFxPlotRenderer()
 
     @FXML
     fun initialize() {
@@ -94,50 +90,15 @@ class MainWindowController {
         git = XGit(context!!, monitor).open()
         isAnyRepoOpen.set(true)
         loadGraph()
-        saveContext()
-    }
-
-    private fun saveContext() {
-        KotlinAsyncRunner().runAsyncIO {
-            val config = openConfigFile()
-            updateRepository(config, context!!)
-            saveConfigFile(config)
-            Platform.runLater {
-                loadHabitualRepos()
-            }
+        configManager.saveContext(context!!)
+        Platform.runLater {
+            loadHabitualRepos()
         }
-    }
-
-    private fun updateRepository(config: ConfigFile, contxt: GitContext) {
-        val repo = config.repos.filter { it.directory!!.path == contxt.directory!!.path }.firstOrNull()
-        if (repo != null) {
-            config.repos.remove(repo)
-        }
-        config.repos.add(0, contxt)
-    }
-
-    private fun saveConfigFile(config: ConfigFile) {
-        ObjectOutputStream(FileOutputStream(File("config.xar"))).use {
-            it.writeObject(config)
-        }
-    }
-
-    private fun openConfigFile(): ConfigFile {
-        var configFile : ConfigFile
-        if (!Files.exists(Path.of("./config.xar"))) {
-            Files.createFile(Path.of("./config.xar"))
-            saveConfigFile(ConfigFile(mutableListOf()))
-            return ConfigFile(mutableListOf())
-        }
-        ObjectInputStream(FileInputStream(File("./config.xar"))).use {
-            configFile = it.readObject() as ConfigFile
-        }
-        return configFile
     }
 
     private fun loadHabitualRepos() {
         recentRepos.items.clear()
-        openConfigFile()?.repos.forEach {
+        configManager.openConfigFile()?.repos.forEach {
                 ctxt ->
             val mnu = MenuItem(ctxt.directory!!.path)
             mnu.setOnAction { openRepo(ctxt) }
