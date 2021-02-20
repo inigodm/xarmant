@@ -16,6 +16,7 @@ import java.io.IOException
 class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Commit>() {
     @FXML
     var group: Group? = null
+    var color: Color? = null
 
     private var mLLoader = FXMLLoader(javaClass.getResource("/ListCell.fxml"))
 
@@ -31,6 +32,7 @@ class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Com
         try {
             mLLoader.load<Any>()
             renderer.paint(this, commit.plotCommit!!)
+            color = commit.plotCommit.lane.color
             setGraphic(group)
         } catch (e: IOException) {
             e.printStackTrace()
