@@ -16,6 +16,7 @@ class Main : Application() {
         val root = fxmlLoader.load<Parent>()
         primaryStage.title = "Xarmanta"
         primaryStage.scene = Scene(root, 800.0, 600.0)
+        primaryStage.scene.getStylesheets().add("stylesheet.css");
         primaryStage.show()
     }
 }
