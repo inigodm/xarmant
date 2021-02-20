@@ -5,6 +5,7 @@ import javafx.beans.InvalidationListener
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableObjectValue
+import javafx.collections.ObservableList
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.StackPane
@@ -28,6 +29,7 @@ import xarmanta.mainwindow.shared.XGit
 import java.net.URL
 
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
+import xarmanta.mainwindow.model.FileChanges
 import java.io.*
 
 
@@ -41,10 +43,12 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var vBox: VBox
     lateinit var btnPush: Button
     lateinit var btnPull: Button
-    lateinit var column1: TableColumn<Commit, String>
     lateinit var column2: TableColumn<Commit, Commit>
     lateinit var column3: TableColumn<Commit, String>
+    lateinit var files: TableColumn<Commit, String>
+    lateinit var filesChanges: TableColumn<FileChanges, String>
     lateinit var table: TableView<Commit>
+    lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
@@ -61,15 +65,32 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
+        table.setFixedCellSize(25.0);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE)
+        table.setOnMouseClicked {
+            getChangesBetween(table.selectionModel.selectedItems)
+        }
+        //table.getSelectionModel()
         column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
         column2.cellValueFactory = Callback { ObservableCommit(it.value) }
-        column1.cellValueFactory = PropertyValueFactory("branch")
         column3.cellValueFactory = PropertyValueFactory("description")
+        filesChanges.cellValueFactory = PropertyValueFactory("changeType")
+        files.cellValueFactory = PropertyValueFactory("filename")
         recentRepos.items.addAll(getRecentOpened())
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
         recentRepos.disableProperty().bind( isAnyRecentRepo.not() )
         loadHabitualRepos()
+    }
+
+    fun getChangesBetween(selectedItems: ObservableList<Commit>?) {
+        runLongOperation{
+            val fileChanges = git!!.getChangesBetween(selectedItems)
+            Platform.runLater{
+                filesInObjectId.items.clear()
+                fileChanges.forEach { filesInObjectId.items.add(it) }
+            }
+        }
     }
 
     private fun getRecentOpened(): List<MenuItem> {
@@ -111,7 +132,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         mnu.setOnAction { openRepo(ctxt) }
         return mnu
     }
-    }
 
     fun cloneRepository(actionEvent: ActionEvent?) {
         val directory = chooseDirectory("Choose destination directory")
@@ -134,7 +154,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         runLongOperation { git?.pull() }
     }
 
-    // esto no va a ser facil XD pero entrara por aqui
     fun loadGraph() {
         runLongOperation {
             val commits = git?.reverseWalk()

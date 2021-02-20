@@ -1,4 +1,4 @@
 package xarmanta.mainwindow.model
 
-class FileChanges {
+data class FileChanges(val filename: String, val changeType: String) {
 }

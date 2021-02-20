@@ -1,26 +1,21 @@
 package xarmanta.mainwindow.shared
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.ListBranchCommand
-import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revplot.PlotCommit
 import org.eclipse.jgit.revplot.PlotWalk
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
 import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
 import xarmanta.mainwindow.model.Commit
-import org.eclipse.jgit.revplot.PlotCommitList
-
-import org.eclipse.jgit.revplot.PlotLane
-import org.eclipse.jgit.lib.ObjectLoader
-
-import org.eclipse.jgit.treewalk.TreeWalk
-
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.revwalk.RevWalk
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxCommitList
-import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
+import xarmanta.mainwindow.model.FileChanges
+
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.lib.ObjectChecker.tree
+
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.FileTreeIterator
 
 
 // Clase para wrapear JGit
@@ -79,6 +74,30 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,
             "Not Cupported", it.commitTime, mutableSetOf(), it))}
         return history
+    }
+
+    fun getChangesBetween(selectedItems: List<Commit>?): List<FileChanges> {
+        val res = when (selectedItems!!.size){
+            1 -> changesInASingleCommit(selectedItems)
+            else -> emptyList()
+        }
+        return res!!.map { FileChanges(it.newPath, it.changeType.name) }
+    }
+
+    private fun changesInASingleCommit(selectedItems: List<Commit>?): List<DiffEntry>? {
+        return git.diff()
+            .setNewTree(FileTreeIterator(git.repository))
+            .setOldTree(getCanonicalTree(selectedItems!!.get(0)))
+            .call()
+    }
+
+    private fun getCanonicalTree(fromCommit: Commit): CanonicalTreeParser {
+        RevWalk(git.repository).use { walk ->
+            val commit = walk.parseCommit(fromCommit.plotCommit)
+            val tree = commit.tree.id
+            git.repository.newObjectReader()
+                .use { reader -> return CanonicalTreeParser(null, reader, tree) }
+        }
     }
 
 }
