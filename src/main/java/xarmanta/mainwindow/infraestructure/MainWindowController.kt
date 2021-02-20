@@ -48,6 +48,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var recentRepos: Menu
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
+    var isAnyRecentRepo = SimpleBooleanProperty(false)
     // Cosas que se levantan en el progressiondicator de las tareas largas
     val pi = ProgressIndicator(-1.0)
     val blockingLabel = Label("")
@@ -67,6 +68,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         recentRepos.items.addAll(getRecentOpened())
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
+        recentRepos.disableProperty().bind( isAnyRecentRepo.not() )
         loadHabitualRepos()
     }
 
@@ -99,11 +101,16 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     private fun loadHabitualRepos() {
         recentRepos.items.clear()
         configManager.openConfigFile()?.repos.forEach {
-                ctxt ->
-            val mnu = MenuItem(ctxt.directory!!.path)
-            mnu.setOnAction { openRepo(ctxt) }
-            recentRepos.items.add(mnu)
+                ctxt -> recentRepos.items.add(createRecentRepoMenuItem(ctxt))
         }
+        isAnyRecentRepo.set(recentRepos.items.isNotEmpty())
+    }
+
+    private fun createRecentRepoMenuItem(ctxt: GitContext): MenuItem {
+        val mnu = MenuItem(ctxt.directory!!.path)
+        mnu.setOnAction { openRepo(ctxt) }
+        return mnu
+    }
     }
 
     fun cloneRepository(actionEvent: ActionEvent?) {

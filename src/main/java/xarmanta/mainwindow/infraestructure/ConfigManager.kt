@@ -22,7 +22,7 @@ class ConfigManager {
         if (repo != null) {
             config.repos.remove(repo)
         }
-        config.repos.add(0, contxt)
+        config.repos.add(contxt)
     }
 
     private fun saveConfigFile(config: ConfigFile) {
