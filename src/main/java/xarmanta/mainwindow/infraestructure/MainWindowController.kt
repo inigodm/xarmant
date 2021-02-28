@@ -176,7 +176,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         val directoryChooser = DirectoryChooser()
         directoryChooser.initialDirectory = File(System.getProperty("user.home"))
         directoryChooser.title = title
-        return directoryChooser.showDialog(console.scene.window)
+        return directoryChooser.showDialog(table.scene.window)
     }
 
     // Corre una tarea asincronamente en background y levanta una pantalla de 'cargando' mientras

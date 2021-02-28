@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
@@ -19,7 +20,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.TextFlow?>
 
 <StackPane fx:id="root" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xarmanta.mainwindow.infraestructure.MainWindowController">
 <VBox fx:id="vBox">
@@ -76,7 +76,6 @@
                </AnchorPane>
         <ScrollPane prefHeight="516.0" prefWidth="273.0">
                   <content>
-                  <TextFlow fx:id="console" prefHeight="523.0" prefWidth="430.0" />
                   </content>
         </ScrollPane>
                <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="523.0" prefWidth="200.0">
@@ -93,7 +92,11 @@
                               </columnResizePolicy>
                            </TableView>
                         </children></AnchorPane>
-                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0" />
+                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0">
+                        <children>
+                           <Canvas height="200.0" layoutX="123.0" layoutY="27.0" width="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        </children>
+                     </AnchorPane>
                  </items>
                </SplitPane>
       </items>

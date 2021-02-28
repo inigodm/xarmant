@@ -2,27 +2,27 @@ package xarmanta.mainwindow.infraestructure.jgit
 
 import javafx.scene.paint.Color
 import javafx.scene.paint.Color.BLACK
-import javafx.scene.shape.Circle
-import javafx.scene.shape.Line
-import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
-import javafx.scene.text.Font
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revplot.AbstractPlotRenderer
 import org.eclipse.jgit.revplot.PlotCommit
 import xarmanta.mainwindow.infraestructure.CommitGraphCell
-import javax.swing.text.StyleConstants.getBackground
+import javafx.scene.canvas.GraphicsContext
+import javafx.scene.text.Font
 
 
 class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
     var cell: CommitGraphCell? = null
 
+    var gc : GraphicsContext? = null
+    var color : Color = BLACK
+
     fun paint(cell: CommitGraphCell, commit: PlotCommit<JavaFxLane>) {
         this.cell = cell
-        if (commit != null) {
-            paintCommit(commit, 20)
-        }
+        gc = cell.canvas!!.graphicsContext2D
+        gc!!.setLineWidth(5.0);
+        paintCommit(commit, 20)
     }
     /**
      * Draw a decoration for the Ref ref at x,y
@@ -36,9 +36,11 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
      * @return width of label in pixels
      */
     override fun drawLabel(x: Int, y: Int, ref: Ref?): Int {
+        gc!!.setLineWidth(1.0);
+        val font = Font.font("Arial", 12.0);
         val texth = 20.0
         val name = ref?.name ?: "label"
-        var txt = name
+        var txt = ""
         if (name.startsWith(Constants.R_HEADS)) {
             txt = name.substringAfter(Constants.R_HEADS);
         } else if (name.startsWith(Constants.R_REMOTES)) {
@@ -51,25 +53,26 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
                 name.substring(Constants.R_REFS.length)
             else name // HEAD and such
         }
-        //var color = cell!!.color!!
+        var innerColor = Color((color.red * 0.9f), (color.green * 0.9f), (color.blue * 0.9f), 0.5)
         if (ref!!.peeledObjectId != null) {
             //color = Color((color.red * 0.9f), (color.green * 0.9f), (color.blue * 0.9f), 0.9)
         }
-        val arcHeight: Double = texth / 4
-        if (txt.length > 12) txt = txt.substring(0, 11) + "\u2026"
-        val y0: Double = y - texth / 2 + (cell!!.height - texth) / 2
+        val arcSize: Double = texth / 4
+        //if (txt.length > 12) txt = txt.substring(0, 11) + "\u2026"
         val text = Text(txt)
-        text.strokeWidth
-        val rect = Rectangle(x.toDouble(), y0, text.strokeWidth + arcHeight * 2, texth + 2)
-        rect.fill = Color.LIGHTCYAN
-        text.x = x + 1.0
-        text.y = y + 1.0
-        text.fill = Color.BLACK
-        text.stroke = Color.BLACK
-        cell!!.group!!.children.add(text)
-        //cell!!.group!!.children.add(rect)
+        text.font = font
+        gc!!.font = font
+        val x0 = x - arcSize
+        val y0 = y - text.layoutBounds.height/2
+        gc!!.fill = innerColor
+        gc!!.fillRoundRect(x0, y0, text.layoutBounds.width + arcSize * 2, text.layoutBounds.height , 5.0, 5.0)
+        gc!!.stroke = color
+        gc!!.strokeRoundRect(x0, y0, text.layoutBounds.width + arcSize * 2, text.layoutBounds.height , 5.0, 5.0)
+        gc!!.stroke = Color.BLACK
+        gc!!.strokeText(txt,  x.toDouble(), y.toDouble() + arcSize);
         cell!!.graphic = cell!!.group
-        return rect.width.toInt()
+        gc!!.setLineWidth(5.0);
+        return (text.layoutBounds.width + arcSize * 2).toInt()
     }
 
     /**
@@ -108,21 +111,10 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
      * @param width
      * number of pixels wide for the line. Always at least 1.
      */
-    override fun drawLine(color: Color?, x1: Int, y1: Int, x2: Int, y2: Int, width: Int) {
-        lateinit var line : Line
-        if (y1 == y2) {
-            println("uno")
-            line = Line((x1 - width / 2).toDouble(), y1.toDouble(), (x2 - width / 2).toDouble(), y2.toDouble())
-        } else if (x1 == x2) {
-            println("dos")
-            line = Line((x1-9).toDouble(), (y1 - width/2).toDouble(), (x2-9).toDouble(), (y2 - width/2).toDouble())
-        } else {
-            println("tres")
-            line = Line(x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble())
-        }
-        println("Line (${line.startX}, ${line.startX}) -> (${line.endX}, ${line.endY})")
-        line.stroke = color;
-        cell!!.group!!.children.add(line)
+    override fun drawLine(col: Color?, x1: Int, y1: Int, x2: Int, y2: Int, width: Int) {
+        color = col ?: BLACK
+        gc!!.stroke = color
+        gc!!.strokeLine(x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble())
         cell!!.graphic = cell!!.group
     }
 
@@ -143,10 +135,8 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
      * height of the oval's bounding box.
      */
     override fun drawCommitDot(x: Int, y: Int, w: Int, h: Int) {
-        val circle = Circle((x - w/2).toDouble(), (y-h/2).toDouble(), h.toDouble()/2, Color.BLANCHEDALMOND)
-        println("Circle (${circle.centerX}, ${circle.centerY}) R = ${circle.radius}")
-        circle.stroke = Color.RED
-        cell!!.group!!.children.add(circle)
+        gc!!.stroke = color
+        gc!!.fillOval(x.toDouble(), y.toDouble(), w.toDouble(), h.toDouble())
         cell!!.graphic = cell!!.group
     }
 
@@ -166,9 +156,8 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
      * height of the oval's bounding box.
      */
     override fun drawBoundaryDot(x: Int, y: Int, w: Int, h: Int) {
-        val circle = Circle(x.toDouble() - w/2, y.toDouble() - h/2, w.toDouble()/2, Color.BLANCHEDALMOND)
-        circle.stroke = cell!!.color
-        cell!!.group!!.children.add(circle)
+        gc!!.stroke = Color.BLANCHEDALMOND
+        gc!!.fillOval(x.toDouble(), y.toDouble(), h.toDouble(), h.toDouble())
         cell!!.graphic = cell!!.group
     }
 
