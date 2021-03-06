@@ -22,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory
 import javafx.stage.DirectoryChooser
 import javafx.util.Callback
 import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.fxmisc.richtext.CodeArea
 import xarmanta.mainwindow.application.Clone
 import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.shared.GitContext
@@ -50,6 +51,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var table: TableView<Commit>
     lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
+    lateinit var fileContent: CodeArea
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     var isAnyRecentRepo = SimpleBooleanProperty(false)
@@ -70,7 +72,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         table.setOnMouseClicked {
             getChangesBetween(table.selectionModel.selectedItems)
         }
-        //table.getSelectionModel()
         column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
         column2.cellValueFactory = Callback { ObservableCommit(it.value) }
         column3.cellValueFactory = PropertyValueFactory("description")
@@ -85,7 +86,11 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     fun getChangesBetween(selectedItems: ObservableList<Commit>?) {
         runLongOperation{
-            val fileChanges = git!!.getChangesBetween(selectedItems)
+            val fileChanges = when (selectedItems!!.size){
+                0 -> emptyList<FileChanges>()
+                1 -> git!!.getChangesInCommit(selectedItems!!.get(0))
+                else -> git!!.getChangesBetween(selectedItems!!.get(1), selectedItems!!.get(0))
+            }
             Platform.runLater{
                 filesInObjectId.items.clear()
                 fileChanges.forEach { filesInObjectId.items.add(it) }
@@ -210,7 +215,11 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
                 ButtonType.CANCEL
             )
             alert.title = "Date format warning"
-            alert.showAndWait().get() === ButtonType.OK
+            var toRedo = false
+            Platform.runLater{
+                toRedo = alert.showAndWait().get() === ButtonType.OK
+            }
+            toRedo
         }
         KotlinAsyncRunner().runAsyncReThrowable(toExecute, onFailure)
     }
