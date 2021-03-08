@@ -13,6 +13,21 @@ import xarmanta.mainwindow.model.FileChanges
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.lib.ObjectLoader
+
+import org.eclipse.jgit.lib.ObjectId
+
+import org.eclipse.jgit.treewalk.TreeWalk
+import xarmanta.mainwindow.model.Entry
+
+import java.io.IOException
+import java.nio.charset.StandardCharsets
+import org.eclipse.jgit.patch.FileHeader
+
+import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.diff.EditList
+import xarmanta.mainwindow.model.ChangedFile
+
 
 // Clase para wrapear JGit
 class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
@@ -74,7 +89,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
 
     fun getChangesBetween(oldCommit: Commit, newCommit: Commit): List<FileChanges> {
         val res = changesBetweenCommits(oldCommit.plotCommit!!, newCommit.plotCommit!!)
-        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, oldCommit, newCommit) }
+        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, oldCommit, newCommit, Entry(it)) }
     }
 
     fun getChangesInCommit(commit: Commit): List<FileChanges> {
@@ -84,7 +99,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         } else {
             changesBetweenCommits(commit.plotCommit!!.parents[0], commit.plotCommit)
         }
-        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, commit, commit) }
+        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, commit, commit, Entry(it)) }
     }
 
     fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
@@ -107,6 +122,33 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             val tree = commit.tree.id
             git.repository.newObjectReader()
                 .use { reader -> return CanonicalTreeParser(null, reader, tree) }
+        }
+    }
+
+    fun buildDiff(selectedItem: FileChanges): ChangedFile {
+        val old = getContent(selectedItem.oldCommit.plotCommit!!, selectedItem.oldFilename)
+        val new = getContent(selectedItem.newCommit.plotCommit!!, selectedItem.filename)
+        val editList = obtainEditList(selectedItem)
+        return ChangedFile(old, new, editList)
+    }
+
+    private fun obtainEditList(selectedItem: FileChanges): EditList {
+        DiffFormatter(null).use { formatter ->
+            formatter.setRepository(git.repository)
+            val fileHeader = formatter.toFileHeader(selectedItem.entry.entry)
+            return fileHeader.toEditList()
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun getContent(commit: RevCommit, path: String): Array<String> {
+        TreeWalk.forPath(git.repository, path, commit.tree).use { treeWalk ->
+            val blobId = treeWalk.getObjectId(0)
+            git.repository.newObjectReader().use { objectReader ->
+                val objectLoader: ObjectLoader = objectReader.open(blobId)
+                val bytes = objectLoader.bytes
+                return String(bytes, StandardCharsets.UTF_8).split("\\n").toTypedArray()
+            }
         }
     }
 }
