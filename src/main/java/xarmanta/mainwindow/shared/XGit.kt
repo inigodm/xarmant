@@ -141,13 +141,13 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     @Throws(IOException::class)
-    private fun getContent(commit: RevCommit, path: String): Array<String> {
+    private fun getContent(commit: RevCommit, path: String): List<String> {
         TreeWalk.forPath(git.repository, path, commit.tree).use { treeWalk ->
             val blobId = treeWalk.getObjectId(0)
             git.repository.newObjectReader().use { objectReader ->
                 val objectLoader: ObjectLoader = objectReader.open(blobId)
                 val bytes = objectLoader.bytes
-                return String(bytes, StandardCharsets.UTF_8).split("\\n").toTypedArray()
+                return String(bytes, StandardCharsets.UTF_8).lines()
             }
         }
     }

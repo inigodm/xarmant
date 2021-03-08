@@ -20,6 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
 
 <StackPane fx:id="root" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xarmanta.mainwindow.infraestructure.MainWindowController">
 <VBox fx:id="vBox">
@@ -59,7 +60,7 @@
              <Button fx:id="btnPull" mnemonicParsing="false" onAction="#pull" text="Pull" ButtonBar.buttonData="LEFT" />
            </buttons>
          </ButtonBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.5" focusTraversable="true" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2505567928730512" focusTraversable="true" VBox.vgrow="ALWAYS">
       <items>
              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="261.0">
                   <children>
@@ -74,27 +75,45 @@
                      </TableView>
                   </children>
                </AnchorPane>
-        <ScrollPane prefHeight="516.0" prefWidth="273.0">
-                  <content>
-                  </content>
-        </ScrollPane>
-               <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="523.0" prefWidth="200.0">
+               <SplitPane dividerPositions="0.29797979797979796" prefHeight="160.0" prefWidth="200.0">
                  <items>
-                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0">
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                         <children>
-                           <TableView fx:id="filesInObjectId" layoutX="103.0" layoutY="27.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                             <columns>
-                                 <TableColumn fx:id="filesChanges" prefWidth="10.0" text="changes" />
-                                 <TableColumn fx:id="files" prefWidth="75.0" text="Files" />
-                             </columns>
-                              <columnResizePolicy>
-                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                              </columnResizePolicy>
-                           </TableView>
-                        </children></AnchorPane>
-                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0">
+                           <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <content>
+                                 <AnchorPane prefHeight="515.0" prefWidth="216.0">
+                                    <children>
+                                       <TextFlow fx:id="fileContent" prefHeight="515.0" prefWidth="195.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="0.0" />
+                                    </children>
+                                 </AnchorPane>
+                              </content>
+                           </ScrollPane>
+                        </children>
+                     </AnchorPane>
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                         <children>
-                           <Canvas height="200.0" layoutX="123.0" layoutY="27.0" width="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="510.0" prefWidth="380.0">
+                             <items>
+                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="251.0" prefWidth="380.0">
+                                    <children>
+                                       <TableView fx:id="filesInObjectId" layoutX="103.0" layoutY="27.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                         <columns>
+                                             <TableColumn fx:id="filesChanges" prefWidth="10.0" text="changes" />
+                                             <TableColumn fx:id="files" prefWidth="75.0" text="Files" />
+                                         </columns>
+                                          <columnResizePolicy>
+                                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                          </columnResizePolicy>
+                                       </TableView>
+                                    </children>
+                                 </AnchorPane>
+                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="514.0" prefWidth="279.0">
+                                    <children>
+                                       <Canvas height="200.0" layoutX="123.0" layoutY="27.0" width="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    </children>
+                                 </AnchorPane>
+                             </items>
+                           </SplitPane>
                         </children>
                      </AnchorPane>
                  </items>

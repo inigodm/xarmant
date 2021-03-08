@@ -19,8 +19,12 @@ import javafx.scene.control.ButtonType
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.Alert
 import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.paint.Color
+import javafx.scene.text.Text
 import javafx.stage.DirectoryChooser
 import javafx.util.Callback
+import org.eclipse.jgit.diff.Edit
+import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.fxmisc.richtext.CodeArea
 import xarmanta.mainwindow.application.Clone
@@ -51,7 +55,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var table: TableView<Commit>
     lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
-    lateinit var fileContent: CodeArea
+    lateinit var fileContent: TextFlow
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     var isAnyRecentRepo = SimpleBooleanProperty(false)
@@ -72,6 +76,9 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         table.setOnMouseClicked {
             getChangesBetween(table.selectionModel.selectedItems)
         }
+        filesInObjectId.setOnMouseClicked {
+            drawDiff(filesInObjectId.selectionModel.selectedItem)
+        }
         column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
         column2.cellValueFactory = Callback { ObservableCommit(it.value) }
         column3.cellValueFactory = PropertyValueFactory("description")
@@ -82,6 +89,32 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
         recentRepos.disableProperty().bind( isAnyRecentRepo.not() )
         loadHabitualRepos()
+    }
+
+    fun drawDiff(selectedItem: FileChanges?) {
+        if (selectedItem != null) {
+            runLongOperation {
+                val drawable = git!!.buildDiff(selectedItem)
+
+                Platform.runLater {
+                    fileContent.children.clear()
+                    drawable.oldFile.forEachIndexed { index, it ->  drawLine(it, drawable.editList, index) }
+                }
+            }
+        }
+    }
+
+    fun drawLine(text: String, editList: EditList, lineIndex: Int) {
+        val edit = editList.firstOrNull { it.beginA <= lineIndex && it.endA >= lineIndex }
+        val textToAdd = Text(text)
+        if (edit != null) {
+            if (edit.type == Edit.Type.REPLACE || edit.type == Edit.Type.INSERT) {
+                textToAdd.fill = Color.GREENYELLOW
+            } else if (edit.type == Edit.Type.DELETE ) {
+                textToAdd.fill = Color.RED
+            }
+        }
+        fileContent.children.add(textToAdd)
     }
 
     fun getChangesBetween(selectedItems: ObservableList<Commit>?) {

@@ -2,4 +2,4 @@ package xarmanta.mainwindow.model
 
 import org.eclipse.jgit.diff.EditList
 
-data class ChangedFile(val oldFile: Array<String>, val newFile: Array<String>, val editList: EditList)
+data class ChangedFile(val oldFile: List<String>, val newFile: List<String>, val editList: EditList)
