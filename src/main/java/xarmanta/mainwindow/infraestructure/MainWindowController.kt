@@ -26,7 +26,7 @@ import javafx.util.Callback
 import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.errors.RepositoryNotFoundException
-import org.fxmisc.richtext.CodeArea
+//import org.fxmisc.richtext.CodeArea
 import xarmanta.mainwindow.application.Clone
 import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.shared.GitContext
@@ -106,14 +106,15 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     fun drawLine(text: String, editList: EditList, lineIndex: Int, newFile: List<String>) {
         val edit = editList.firstOrNull { it.beginA <= lineIndex && it.endA >= lineIndex }
-        val textToAdd = Text(text)
+        val textToAdd = Text(text + "\n")
         if (edit != null) {
-            if (edit.type == Edit.Type.DELETE ) {
+            println(edit)
+            if (edit.type == Edit.Type.DELETE  || edit.type == Edit.Type.REPLACE) {
                 textToAdd.fill = Color.RED
                 fileContent.children.add(textToAdd)
             }
             if (edit.endA == lineIndex) {
-                if (edit.type == Edit.Type.INSERT) {
+                if (edit.type == Edit.Type.INSERT || edit.type == Edit.Type.REPLACE) {
                     newFile.subList(edit.beginB, edit.endB).forEach {
                         val newText = Text(it + "\n")
                         newText.fill = Color.GREEN
