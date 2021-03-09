@@ -98,23 +98,37 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
                 Platform.runLater {
                     fileContent.children.clear()
-                    drawable.oldFile.forEachIndexed { index, it ->  drawLine(it, drawable.editList, index) }
+                    drawable.oldFile.forEachIndexed { index, it ->  drawLine(it, drawable.editList, index, drawable.newFile) }
                 }
             }
         }
     }
 
-    fun drawLine(text: String, editList: EditList, lineIndex: Int) {
+    fun drawLine(text: String, editList: EditList, lineIndex: Int, newFile: List<String>) {
         val edit = editList.firstOrNull { it.beginA <= lineIndex && it.endA >= lineIndex }
         val textToAdd = Text(text)
         if (edit != null) {
-            if (edit.type == Edit.Type.REPLACE || edit.type == Edit.Type.INSERT) {
-                textToAdd.fill = Color.GREENYELLOW
-            } else if (edit.type == Edit.Type.DELETE ) {
+            if (edit.type == Edit.Type.DELETE ) {
                 textToAdd.fill = Color.RED
+                fileContent.children.add(textToAdd)
             }
+            if (edit.endA == lineIndex) {
+                if (edit.type == Edit.Type.INSERT) {
+                    newFile.subList(edit.beginB, edit.endB).forEach {
+                        val newText = Text(it + "\n")
+                        newText.fill = Color.GREEN
+                        fileContent.children.add(newText)
+                    }
+                }
+            }
+            /*newFile.subList(edit.beginB, edit.endB).forEach{
+                val newText = Text(it + "\n")
+                newText.fill = color
+                fileContent.children.add(newText)
+            }*/
+        } else {
+            fileContent.children.add(textToAdd)
         }
-        fileContent.children.add(textToAdd)
     }
 
     fun getChangesBetween(selectedItems: ObservableList<Commit>?) {
