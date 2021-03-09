@@ -15,14 +15,11 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.lib.ObjectLoader
 
-import org.eclipse.jgit.lib.ObjectId
-
 import org.eclipse.jgit.treewalk.TreeWalk
 import xarmanta.mainwindow.model.Entry
 
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import org.eclipse.jgit.patch.FileHeader
 
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.EditList
@@ -72,7 +69,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             .call()
     }
 
-    fun reverseWalk(): MutableList<Commit> {
+    fun getGraph(): MutableList<Commit> {
         val walk = PlotWalk(git.repository)
         val allRefs: Collection<Ref> = git.repository.refDatabase.getRefs()
         for (ref in allRefs) {
@@ -99,7 +96,10 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         } else {
             changesBetweenCommits(commit.plotCommit!!.parents[0], commit.plotCommit)
         }
-        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, commit, commit, Entry(it)) }
+        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name,
+                Commit(parent!!.fullMessage, parent.name, parent.authorIdent.name,
+                        "Not Cupported", parent.commitTime, mutableSetOf(), parent),
+                commit, Entry(it)) }
     }
 
     fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
@@ -126,8 +126,8 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     fun buildDiff(selectedItem: FileChanges): ChangedFile {
-        val old = getContent(selectedItem.oldCommit.plotCommit!!, selectedItem.oldFilename)
-        val new = getContent(selectedItem.newCommit.plotCommit!!, selectedItem.filename)
+        val old = getFileContentAtCommit(selectedItem.oldCommit.plotCommit!!, selectedItem.oldFilename)
+        val new = getFileContentAtCommit(selectedItem.newCommit.plotCommit!!, selectedItem.filename)
         val editList = obtainEditList(selectedItem)
         return ChangedFile(old, new, editList)
     }
@@ -141,7 +141,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     @Throws(IOException::class)
-    private fun getContent(commit: RevCommit, path: String): List<String> {
+    private fun getFileContentAtCommit(commit: RevCommit, path: String): List<String> {
         TreeWalk.forPath(git.repository, path, commit.tree).use { treeWalk ->
             val blobId = treeWalk.getObjectId(0)
             git.repository.newObjectReader().use { objectReader ->

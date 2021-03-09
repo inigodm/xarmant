@@ -95,7 +95,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         if (selectedItem != null) {
             runLongOperation {
                 val drawable = git!!.buildDiff(selectedItem)
-
                 Platform.runLater {
                     fileContent.children.clear()
                     drawable.oldFile.forEachIndexed { index, it ->  drawLine(it, drawable.editList, index, drawable.newFile) }
@@ -109,7 +108,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         val textToAdd = Text(text + "\n")
         if (edit != null) {
             println(edit)
-            if (edit.type == Edit.Type.DELETE  || edit.type == Edit.Type.REPLACE) {
+            if (edit.endA != lineIndex && (edit.type == Edit.Type.DELETE  || edit.type == Edit.Type.REPLACE)) {
                 textToAdd.fill = Color.RED
                 fileContent.children.add(textToAdd)
             }
@@ -121,12 +120,8 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
                         fileContent.children.add(newText)
                     }
                 }
+                fileContent.children.add(textToAdd)
             }
-            /*newFile.subList(edit.beginB, edit.endB).forEach{
-                val newText = Text(it + "\n")
-                newText.fill = color
-                fileContent.children.add(newText)
-            }*/
         } else {
             fileContent.children.add(textToAdd)
         }
@@ -140,6 +135,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
                 else -> git!!.getChangesBetween(selectedItems!!.get(1), selectedItems!!.get(0))
             }
             Platform.runLater{
+                fileContent.children.clear()
                 filesInObjectId.items.clear()
                 fileChanges.forEach { filesInObjectId.items.add(it) }
             }
@@ -209,7 +205,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     fun loadGraph() {
         runLongOperation {
-            val commits = git?.reverseWalk()
+            val commits = git?.getGraph()
             Platform.runLater{
                 table.items.clear()
                 commits?.forEach { table.items.add(it) }
