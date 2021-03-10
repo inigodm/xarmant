@@ -23,6 +23,7 @@ class ConfigManager {
             config.repos.remove(repo)
         }
         config.repos.add(contxt)
+        config.lastOpened = contxt
     }
 
     private fun saveConfigFile(config: ConfigFile) {

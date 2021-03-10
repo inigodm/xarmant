@@ -35,6 +35,7 @@ import java.net.URL
 
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
 import xarmanta.mainwindow.model.FileChanges
+import xarmanta.mainwindow.shared.ConfigFile
 import java.io.*
 
 
@@ -88,7 +89,11 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
         recentRepos.disableProperty().bind( isAnyRecentRepo.not() )
-        loadHabitualRepos()
+        val config = configManager.openConfigFile()
+        if (config.lastOpened != null) {
+            openRepository(config.lastOpened!!)
+        }
+        loadHabitualRepos(config)
     }
 
     fun drawDiff(selectedItem: FileChanges?) {
@@ -158,19 +163,20 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         }
     }
 
-    private fun openRepository(context: GitContext) {
-        git = XGit(context, monitor).open()
+    private fun openRepository(ctxt: GitContext) {
+        git = XGit(ctxt, monitor).open()
         isAnyRepoOpen.set(true)
         loadGraph()
-        configManager.saveContext(context)
+        configManager.saveContext(ctxt)
+        val config = configManager.openConfigFile()
         Platform.runLater {
-            loadHabitualRepos()
+            loadHabitualRepos(config)
         }
     }
 
-    private fun loadHabitualRepos() {
+    private fun loadHabitualRepos(config: ConfigFile) {
         recentRepos.items.clear()
-        configManager.openConfigFile()?.repos.forEach {
+        config.repos.forEach {
                 ctxt -> recentRepos.items.add(createRecentRepoMenuItem(ctxt))
         }
         isAnyRecentRepo.set(recentRepos.items.isNotEmpty())
