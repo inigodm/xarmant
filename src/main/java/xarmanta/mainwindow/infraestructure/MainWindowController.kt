@@ -131,8 +131,8 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         runLongOperation{
             val fileChanges = when (selectedItems!!.size){
                 0 -> emptyList<FileChanges>()
-                1 -> git!!.getChangesInCommit(selectedItems!!.get(0))
-                else -> git!!.getChangesBetween(selectedItems!!.get(1), selectedItems!!.get(0))
+                1 -> git!!.getChangesInCommit(selectedItems[0])
+                else -> git!!.getChangesBetween(selectedItems.takeLast(1)[0], selectedItems[0])
             }
             Platform.runLater{
                 fileContent.children.clear()
@@ -151,18 +151,18 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         try {
             dir = chooseDirectory("Choose root of your local git repository")
             context = GitContext(null, dir)
-            openRepo(context!!)
+            openRepository(context!!)
         } catch (e: RepositoryNotFoundException) {
             Alert(AlertType.ERROR, "$dir does not contain a valid git repository").showAndWait()
             openRepository(actionEvent)
         }
     }
 
-    private fun openRepo(context: GitContext) {
-        git = XGit(context!!, monitor).open()
+    private fun openRepository(context: GitContext) {
+        git = XGit(context, monitor).open()
         isAnyRepoOpen.set(true)
         loadGraph()
-        configManager.saveContext(context!!)
+        configManager.saveContext(context)
         Platform.runLater {
             loadHabitualRepos()
         }
@@ -178,7 +178,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     private fun createRecentRepoMenuItem(ctxt: GitContext): MenuItem {
         val mnu = MenuItem(ctxt.directory!!.path)
-        mnu.setOnAction { openRepo(ctxt) }
+        mnu.setOnAction { openRepository(ctxt) }
         return mnu
     }
 
@@ -258,7 +258,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
                 ButtonType.OK,
                 ButtonType.CANCEL
             )
-            alert.title = "Date format warning"
+            alert.title = "Warning"
             var toRedo = false
             Platform.runLater{
                 toRedo = alert.showAndWait().get() === ButtonType.OK

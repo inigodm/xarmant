@@ -102,7 +102,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
                 commit, Entry(it)) }
     }
 
-    fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
+    private fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
         return git.diff()
             .setOldTree(EmptyTreeIterator())
             .setNewTree(getCanonicalTree(commit.plotCommit!!))
@@ -143,6 +143,9 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     @Throws(IOException::class)
     private fun getFileContentAtCommit(commit: RevCommit, path: String): List<String> {
         TreeWalk.forPath(git.repository, path, commit.tree).use { treeWalk ->
+            if (treeWalk == null) {
+                return emptyList()
+            }
             val blobId = treeWalk.getObjectId(0)
             git.repository.newObjectReader().use { objectReader ->
                 val objectLoader: ObjectLoader = objectReader.open(blobId)
