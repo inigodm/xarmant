@@ -10,7 +10,11 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'http://dist.wso2.org/maven2/'}
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 test {
@@ -21,10 +25,13 @@ dependencies {
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     testCompile group: 'io.mockk', name: 'mockk', version: '1.10.0'
     testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.23'
+    testCompile "org.junit.jupiter:junit-jupiter-params:5.6.2"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.10.0.202012080955-r'
+    implementation group: 'com.googlecode.javaewah.wso2', name: 'JavaEWAH', version: '0.3.2.wso2v1'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: 'inigo-custom'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.4.2'
 
 }
