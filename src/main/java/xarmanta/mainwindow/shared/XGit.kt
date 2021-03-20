@@ -1,29 +1,29 @@
 package xarmanta.mainwindow.shared
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revplot.PlotWalk
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
 import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
-import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxCommitList
-import xarmanta.mainwindow.model.FileChanges
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.lib.ObjectLoader
 
 import org.eclipse.jgit.treewalk.TreeWalk
-import xarmanta.mainwindow.model.Entry
 
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.EditList
-import xarmanta.mainwindow.model.ChangedFile
+import org.eclipse.jgit.dircache.DirCacheIterator
+import org.eclipse.jgit.treewalk.FileTreeIterator
+import xarmanta.mainwindow.model.*
 
 
 // Clase para wrapear JGit
@@ -39,6 +39,10 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         tags = git.tagList().call()
         origins = git.remoteList().call()
         stashes = git.stashList().call()
+    }
+
+    fun status(): Status? {
+        return git.status().call()
     }
 
     fun clone(): XGit {
@@ -81,6 +85,16 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         val history = mutableListOf<Commit>()
         list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,
             "Not Cupported", it.commitTime, mutableSetOf(), it))}
+        var status = status()
+        history.add(0, Commit("Uncommited",
+                "",
+                "",
+                "",
+                0,
+                status!!.changed,
+                history[0].commit,
+                history[0].plotCommit,
+                CommitType.UNCOMMITED))
         return history
     }
 
@@ -107,6 +121,20 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             .setOldTree(EmptyTreeIterator())
             .setNewTree(getCanonicalTree(commit.plotCommit!!))
             .call()
+    }
+
+    private fun changesInWorkingCopy(oldCommit: RevCommit) : List<DiffEntry>? {
+        return git.diff()
+                .setNewTree(FileTreeIterator(git.repository))
+                .setOldTree(getCanonicalTree(oldCommit))
+                .call()
+    }
+
+    private fun changesInIndex(oldCommit: RevCommit) : List<DiffEntry>? {
+        return git.diff()
+                .setNewTree(DirCacheIterator(git.repository.readDirCache()))
+                .setOldTree(getCanonicalTree(oldCommit))
+                .call()
     }
 
     private fun changesBetweenCommits(oldCommit: RevCommit, newCommit: RevCommit): List<DiffEntry>? {

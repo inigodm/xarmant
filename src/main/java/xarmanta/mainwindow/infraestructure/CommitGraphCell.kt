@@ -22,7 +22,6 @@ class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Com
     @FXML
     var canvas: Canvas? = null
 
-    var color: Color? = null
     var innerCommit : Commit? = null
 
     private var mLLoader = FXMLLoader(javaClass.getResource("/ListCell.fxml"))
@@ -38,13 +37,11 @@ class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Com
         mLLoader.setController(this)
         try {
             mLLoader.load<Any>()
-            renderer.paint(this, commit.plotCommit!!)
-            color = commit.plotCommit.lane.color
+            renderer.paint(this, commit.plotCommit, commit.type)
             setGraphic(canvas)
             val listener = InvalidationListener{
                 if (innerCommit != null) {
                     updateItem(innerCommit, true)
-                    println("redraw")
                 }
             }
             canvas!!.widthProperty().addListener(listener);
