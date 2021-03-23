@@ -1,0 +1,6 @@
+# eclipse gradle project
+/build/
+/settings/
+/gradle/
+/gradlew
+/.project
