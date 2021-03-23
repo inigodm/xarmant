@@ -3,6 +3,7 @@ package xarmanta.application
 import javafx.application.Application
 import kotlin.Throws
 import javafx.fxml.FXMLLoader
+import javafx.scene.image.Image;
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
@@ -17,6 +18,7 @@ class Main : Application() {
         primaryStage.title = "Xarmanta"
         primaryStage.scene = Scene(root, 800.0, 600.0)
         primaryStage.scene.getStylesheets().add("stylesheet.css");
+		primaryStage.getIcons().add(Image("./icon.png"))
         primaryStage.show()
     }
 }
