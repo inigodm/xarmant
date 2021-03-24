@@ -1,4 +1,4 @@
-package xarmanta.application
+package xarmanta.launch
 
 import javafx.application.Application
 import kotlin.Throws

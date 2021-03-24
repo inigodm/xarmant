@@ -38,12 +38,12 @@ javafx {
     modules = [ 'javafx.web', 'javafx.swing', 'javafx.media', 'javafx.base', 'javafx.graphics',  'javafx.controls', 'javafx.fxml' ]
 }
 
-mainClassName = 'xarmanta.application.Launcher'
+mainClassName = 'xarmanta.launch.Launcher'
 
 //To create a runnable jar  in GradleJavaProject\build\libs then java -jar GradleJavaProject.jar
 jar {
     manifest {
-        attributes 'Main-Class': 'sample.Main'
+        attributes 'Main-Class': 'xarmanta.launch.Launcher'
     }
 }
 

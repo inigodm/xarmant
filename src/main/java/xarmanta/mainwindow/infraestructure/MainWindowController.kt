@@ -14,7 +14,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import javafx.scene.layout.HBox
-import xarmanta.shared.KotlinAsyncRunner
+import xarmanta.mainwindow.shared.KotlinAsyncRunner
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.Alert
@@ -65,7 +65,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     val blockingLabel = Label("")
     private var monitor = LabelProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
-    //TA-DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!
 
     @FXML
     fun initialize() {
@@ -92,8 +91,10 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         val config = configManager.openConfigFile()
         if (config.lastOpened != null) {
             openRepository(config.lastOpened!!)
+            loadHabitualRepos(config, config.lastOpened!!)
+        } else {
+            loadHabitualRepos(config, null)
         }
-        loadHabitualRepos(config)
     }
 
     fun drawDiff(selectedItem: FileChanges?) {
@@ -155,8 +156,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         var dir: File? = null
         try {
             dir = chooseDirectory("Choose root of your local git repository")
-            context = GitContext(null, dir)
-            openRepository(context!!)
+            openRepository(GitContext(null, dir)!!)
         } catch (e: RepositoryNotFoundException) {
             Alert(AlertType.ERROR, "$dir does not contain a valid git repository").showAndWait()
             openRepository(actionEvent)
@@ -170,14 +170,14 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         configManager.saveContext(ctxt)
         val config = configManager.openConfigFile()
         Platform.runLater {
-            loadHabitualRepos(config)
+            loadHabitualRepos(config, ctxt)
         }
     }
 
-    private fun loadHabitualRepos(config: ConfigFile) {
+    private fun loadHabitualRepos(config: ConfigFile, context: GitContext?) {
         recentRepos.items.clear()
-        config.repos.forEach {
-                ctxt -> recentRepos.items.add(createRecentRepoMenuItem(ctxt))
+        config.repos.filter { it.directory != context?.directory }.forEach {
+                recentRepos.items.add(createRecentRepoMenuItem(it))
         }
         isAnyRecentRepo.set(recentRepos.items.isNotEmpty())
     }

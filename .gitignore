@@ -1,3 +1,22 @@
+.gradle
+build
+/gradle
+/.classpath
+/.project
+/.settings
+.idea
+.java-version
+.history/
+*.iml
+.gradletasknamecache
+.build
+conf/*
+/conf/*
+logs
+/efs
+.sdkmanrc
+gradlew
+bin/*
 # eclipse gradle project
 /build/
 /settings/
@@ -5,3 +24,9 @@
 /gradlew
 /.project
 /config.xar
+
+*/out
+out/*
+
+# IntelliJ
+out

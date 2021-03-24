@@ -1,4 +1,4 @@
-package xarmanta.shared
+package xarmanta.mainwindow.shared
 
 import kotlinx.coroutines.*
 import java.lang.Runnable

@@ -2,7 +2,7 @@ package xarmanta.mainwindow.infraestructure
 
 import xarmanta.mainwindow.shared.ConfigFile
 import xarmanta.mainwindow.shared.GitContext
-import xarmanta.shared.KotlinAsyncRunner
+import xarmanta.mainwindow.shared.KotlinAsyncRunner
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
