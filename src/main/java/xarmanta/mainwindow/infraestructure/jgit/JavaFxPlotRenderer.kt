@@ -9,16 +9,19 @@ import org.eclipse.jgit.revplot.AbstractPlotRenderer
 import org.eclipse.jgit.revplot.PlotCommit
 import xarmanta.mainwindow.infraestructure.CommitGraphCell
 import javafx.scene.canvas.GraphicsContext
+import javafx.scene.paint.Color.RED
 import javafx.scene.text.Font
+import org.eclipse.jgit.revplot2.XarmantAbstractPlotRenderer
+import xarmanta.mainwindow.model.CommitType
 
 
-class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
+class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
     var cell: CommitGraphCell? = null
 
     var gc : GraphicsContext? = null
     var color : Color = BLACK
 
-    fun paint(cell: CommitGraphCell, commit: PlotCommit<JavaFxLane>) {
+    fun paint(cell: CommitGraphCell, commit: PlotCommit<JavaFxLane>?, type: CommitType) {
         this.cell = cell
         gc = cell.canvas!!.graphicsContext2D
         gc!!.setLineWidth(5.0);
@@ -53,7 +56,7 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
                 name.substring(Constants.R_REFS.length)
             else name // HEAD and such
         }
-        var innerColor = Color((color.red * 0.9f), (color.green * 0.9f), (color.blue * 0.9f), 0.5)
+        val innerColor = Color((color.red * 0.9f), (color.green * 0.9f), (color.blue * 0.9f), 0.5)
         if (ref!!.peeledObjectId != null) {
             //color = Color((color.red * 0.9f), (color.green * 0.9f), (color.blue * 0.9f), 0.9)
         }
@@ -68,7 +71,7 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
         gc!!.fillRoundRect(x0, y0, text.layoutBounds.width + arcSize * 2, text.layoutBounds.height , 5.0, 5.0)
         gc!!.stroke = color
         gc!!.strokeRoundRect(x0, y0, text.layoutBounds.width + arcSize * 2, text.layoutBounds.height , 5.0, 5.0)
-        gc!!.stroke = Color.BLACK
+        gc!!.stroke = BLACK
         gc!!.strokeText(txt,  x.toDouble(), y.toDouble() + arcSize);
         cell!!.graphic = cell!!.group
         gc!!.setLineWidth(5.0);
@@ -92,7 +95,7 @@ class JavaFxPlotRenderer() : AbstractPlotRenderer<JavaFxLane, Color>() {
      * @return graphics specific color reference. Must be a valid color.
      */
     override fun laneColor(myLane: JavaFxLane?): Color {
-        return myLane?.color ?: Color.BLACK
+        return myLane?.color ?: BLACK
     }
 
     /**
