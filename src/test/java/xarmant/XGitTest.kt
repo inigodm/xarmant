@@ -80,3 +80,8 @@ fun XGit.reverseWalkTimed(): MutableList<Commit> {
     println("Elapsed: ${(end - begin)/1000000}ms")
     return commits
 }
+
+fun XGit.reverseWalk(): MutableList<Commit> {
+    val mutableList : MutableList<Commit> = ArrayList()
+    return mutableList
+}

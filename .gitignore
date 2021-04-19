@@ -1,9 +1,8 @@
-.gradle
-build
-/gradle
-/.classpath
-/.project
-/.settings
+# gradle
+/gradlew
+gradle
+
+# IntelliJ
 .idea
 .java-version
 .history/
@@ -17,16 +16,16 @@ logs
 .sdkmanrc
 gradlew
 bin/*
-# eclipse gradle project
-/build/
-/settings/
-/gradle/
-/gradlew
-/.project
-/config.xar
-
 */out
 out/*
-
-# IntelliJ
 out
+
+# eclipse gradle project
+build
+settings
+.gradle
+.settings
+.classpath
+.project
+config.xar
+
