@@ -1,10 +1,7 @@
-package xarmanta.mainwindow.infraestructure
+package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.application.Platform
-import javafx.beans.InvalidationListener
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableObjectValue
 import javafx.collections.ObservableList
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
@@ -14,8 +11,6 @@ import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import javafx.scene.layout.HBox
-import xarmanta.mainwindow.shared.KotlinAsyncRunner
-import javafx.scene.control.ButtonType
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.Alert
 import javafx.scene.control.cell.PropertyValueFactory
@@ -26,16 +21,17 @@ import javafx.util.Callback
 import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.errors.RepositoryNotFoundException
+import xarmanta.mainwindow.shared.ConfigManager
+import xarmanta.mainwindow.infraestructure.LabelProgressMonitor
 //import org.fxmisc.richtext.CodeArea
-import xarmanta.mainwindow.application.Clone
 import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.shared.GitContext
-import xarmanta.mainwindow.shared.XGit
+import xarmanta.mainwindow.model.ConfigFile
 import java.net.URL
 
-import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
 import xarmanta.mainwindow.model.FileChanges
-import xarmanta.mainwindow.shared.ConfigFile
+import xarmanta.mainwindow.model.GitContext
+import xarmanta.mainwindow.shared.*
+import xarmanta.mainwindow.shared.git.XGit
 import java.io.*
 
 
@@ -44,7 +40,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     var git : XGit? = null
     var context: GitContext? = null
     //FXML bindings
-    lateinit var console: TextFlow
+    //lateinit var console: TextFlow
     lateinit var root: StackPane
     lateinit var vBox: VBox
     lateinit var btnPush: Button
@@ -65,6 +61,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     val blockingLabel = Label("")
     private var monitor = LabelProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
+    lateinit var runner: LongOperationRunner
 
     @FXML
     fun initialize() {
@@ -88,6 +85,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         btnPull.disableProperty().bind( isAnyRepoOpen.not() )
         btnPush.disableProperty().bind( isAnyRepoOpen.not() )
         recentRepos.disableProperty().bind( isAnyRecentRepo.not() )
+        runner = LongOperationRunner(root, vBox, box)
         val config = configManager.openConfigFile()
         if (config.lastOpened != null) {
             openRepository(config.lastOpened!!)
@@ -99,7 +97,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     fun drawDiff(selectedItem: FileChanges?) {
         if (selectedItem != null) {
-            runLongOperation {
+            runner.runLongOperation {
                 val drawable = git!!.buildDiff(selectedItem)
                 Platform.runLater {
                     fileContent.children.clear()
@@ -134,7 +132,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     }
 
     fun getChangesBetween(selectedItems: ObservableList<Commit>?) {
-        runLongOperation{
+        runner.runLongOperation{
             val fileChanges = when (selectedItems!!.size){
                 0 -> emptyList<FileChanges>()
                 1 -> git!!.getChangesInCommit(selectedItems[0])
@@ -192,30 +190,24 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         val directory = chooseDirectory("Choose destination directory")
         if (directory != null) {
             val url = URL(askForAText("Insert repository's URL"))
-            runLongOperation {
+            runner.runLongOperation {
                 context = GitContext(url.toString(), directory)
-                git = Clone().execute(context!!, monitor)
+                git = XGit(context!!, monitor).clone()
                 isAnyRepoOpen.set(true)
                 loadGraph()
             }
         }
     }
 
-    fun push(actionEvent: ActionEvent?) {
-        runLongOperation { git?.push() }
-    }
+    fun push(actionEvent: ActionEvent?) = runner.runLongOperation { git?.push() }
 
-    fun pull(actionEvent: ActionEvent?) {
-        runLongOperation { git?.pull() }
-    }
+    fun pull(actionEvent: ActionEvent?) = runner.runLongOperation { git?.pull() }
 
-    fun loadGraph() {
-        runLongOperation {
-            val commits = git?.getGraph()
-            Platform.runLater{
-                table.items.clear()
-                commits?.forEach { table.items.add(it) }
-            }
+    fun loadGraph() = runner.runLongOperation {
+        val commits = git?.getGraph()
+        Platform.runLater {
+            table.items.clear()
+            commits?.forEach { table.items.add(it) }
         }
     }
 
@@ -233,83 +225,5 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         directoryChooser.title = title
         return directoryChooser.showDialog(table.scene.window)
     }
-
-    // Corre una tarea asincronamente en background y levanta una pantalla de 'cargando' mientras
-    fun runLongOperation(operation: Runnable) {
-        val toExecute = {
-            Platform.runLater{
-                showLoading()
-            }
-            try {
-                operation.run()
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                Platform.runLater{
-                    Alert(
-                        AlertType.ERROR,
-                        e.message,
-                        ButtonType.OK
-                    ).show()
-                }
-            } finally {
-                Platform.runLater{
-                    hideLoading()
-                }
-            }
-        }
-        val onFailure = {
-            val alert = Alert(
-                AlertType.WARNING,
-                "Timeout doing the last command, would you like to retry it duplicating the timeout?",
-                ButtonType.OK,
-                ButtonType.CANCEL
-            )
-            alert.title = "Warning"
-            var toRedo = false
-            Platform.runLater{
-                toRedo = alert.showAndWait().get() === ButtonType.OK
-            }
-            toRedo
-        }
-        KotlinAsyncRunner().runAsyncReThrowable(toExecute, onFailure)
-    }
-
-    fun showLoading() {
-        vBox.setDisable(true)
-        root.children.add(box)
-    }
-
-    fun hideLoading() {
-        vBox.setDisable(false)
-        root.children.removeLast()
-    }
-
 }
 
-// Se encesitaba para el tableview... realmente no necesito que sean observables, pero yo que se....
-class ObservableCommit(val commit: Commit): ObservableObjectValue<Commit> {
-    override fun addListener(listener: ChangeListener<in Commit>?) {
-        //no op
-    }
-
-    override fun addListener(listener: InvalidationListener?) {
-        //no op
-    }
-
-    override fun removeListener(listener: InvalidationListener?) {
-        //no op
-    }
-
-    override fun removeListener(listener: ChangeListener<in Commit>?) {
-        //no op
-    }
-
-    override fun getValue(): Commit {
-        return commit
-    }
-
-    override fun get(): Commit {
-        return commit
-    }
-
-}

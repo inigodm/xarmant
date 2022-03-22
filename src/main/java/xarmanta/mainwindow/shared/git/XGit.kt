@@ -1,4 +1,4 @@
-package xarmanta.mainwindow.shared
+package xarmanta.mainwindow.shared.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
@@ -24,6 +24,7 @@ import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import xarmanta.mainwindow.model.*
+import xarmanta.mainwindow.model.GitContext
 
 
 // Clase para wrapear JGit
@@ -55,7 +56,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         return this
     }
 
-    fun open() : XGit{
+    fun open() : XGit {
         git = Git.open(config.directory)
         updateData()
         return this
@@ -75,17 +76,14 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
 
     fun getGraph(): MutableList<Commit> {
         val walk = PlotWalk(git.repository)
-        val allRefs: Collection<Ref> = git.repository.refDatabase.getRefs()
-        for (ref in allRefs) {
-            walk.markStart(walk.parseCommit(ref.objectId))
-        }
+        git.repository.refDatabase.getRefs().forEach { walk.markStart(walk.parseCommit(it.objectId)) }
         val list = JavaFxCommitList()
         list.source(walk)
         list.fillTo(Int.MAX_VALUE)
         val history = mutableListOf<Commit>()
         list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,
-            "Not Cupported", it.commitTime, mutableSetOf(), it))}
-        var status = status()
+            "Not Supported", it.commitTime, mutableSetOf(), it))}
+        val status = status()
         history.add(0, Commit("Uncommited",
                 "",
                 "",

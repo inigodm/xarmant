@@ -1,23 +1,22 @@
-package xarmanta.mainwindow.infraestructure.jgit
+package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.scene.paint.Color
 import javafx.scene.paint.Color.BLACK
 import javafx.scene.text.Text
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revplot.AbstractPlotRenderer
 import org.eclipse.jgit.revplot.PlotCommit
-import xarmanta.mainwindow.infraestructure.CommitGraphCell
+import xarmanta.mainwindow.infraestructure.javafx.CommitGraphCell
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.paint.Color.RED
 import javafx.scene.text.Font
 import org.eclipse.jgit.revplot2.XarmantAbstractPlotRenderer
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
 import xarmanta.mainwindow.model.CommitType
 
 
 class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
-    var cell: CommitGraphCell? = null
 
+    var cell: CommitGraphCell? = null
     var gc : GraphicsContext? = null
     var color : Color = BLACK
 

@@ -2,88 +2,43 @@ package xarmant
 
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import xarmant.mainwindow.infraestructure.ConsoleMonitor
-import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.shared.GitContext
-import xarmanta.mainwindow.shared.XGit
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import java.lang.NoSuchMethodException
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class JGitTest {
 
 	var jgit: Git? = null
 
-
 	@BeforeAll
 	fun init() {
-		//static InitCommand init() Create an empty Git repository or reinitialize an existing one 
 		Files.deleteIfExists(Path.of("/tmp/test"))
 		jgit = Git.init().setDirectory(File("/tmp/test")).call()
-
-		// static Git open(File dir)
-		// static Git open(File dir, FS fs)		
-		//  dir - the repository to open. May be either the GIT_DIR, or the working tree directory that contains .git.
-		//  fs - filesystem abstraction to use when accessing the repository. 
-		// jgit.open()
-		/*Files.walk(Path.of("/tmp/test"))
-  .sorted(Comparator.reverseOrder())
-  .map(Path::toFile)
-  .forEach(File::delete)
-    Files.deleteIfExists(Path.of("/tmp/test"))
-    val jgit = Git.init().setDirectory(File("/tmp/test")).call()
-    newCommitNewFile(jgit, "A")
-    newCommitNewFile(jgit, "B")
-    newCommitNewFile(jgit, "C")
-    jgit.checkout().setCreateBranch(true).setName("brancha").call();
-    newCommitNewFile(jgit, "G")
-    newCommitNewFile(jgit, "H")
-    newCommitNewFile(jgit, "I")
-    newCommitNewFile(jgit, "J")
-    newCommitNewFile(jgit, "K")
-    newCommitNewFile(jgit, "L")
-    newCommitNewFile(jgit, "M")
-    newCommitNewFile(jgit, "N")
-    newCommitNewFile(jgit, "O")
-    newCommitNewFile(jgit, "P")
-    newCommitNewFile(jgit, "Q")
-    jgit.checkout().setCreateBranch(true).setName("branchb").call();
-    newCommitNewFile(jgit, "R")
-    newCommitNewFile(jgit, "S")
-    newCommitNewFile(jgit, "T")
-    newCommitNewFile(jgit, "U")
-    newCommitNewFile(jgit, "V")
-    jgit.checkout().setCreateBranch(false).setName("master").call();
-    newCommitNewFile(jgit, "E")
-    newCommitNewFile(jgit, "F")
-    jgit.checkout().setCreateBranch(true).setName("branchc").call();
-    newCommitNewFile(jgit, "W")
-    newCommitNewFile(jgit, "X")
-    newCommitNewFile(jgit, "Y")
-    newCommitNewFile(jgit, "Z")
-		 */
 	}
 
 	@AfterAll
 	fun finalize() {
 		assertNotNull(jgit)
 		jgit!!.close()
+		Files.deleteIfExists(Path.of("/tmp/test"))
 	}
 
-	// AddCommand add() Returns a command object to execute a Add command
 	@Test
-	fun add_command() {
-		assertNotNull(jgit)
+	fun add_command_returns_a_command_object_to_execute_a_add_command() {
+		//given
 		val filename: String = "test.txt"
 		Files.createFile(Path.of("/tmp/test/$filename"))
-		jgit!!.add().addFilepattern(filename).call();
+
+		//when
+		val dirCache = jgit!!.add().addFilepattern(filename).call();
+
+		//then
+		assertEquals(dirCache.entryCount, 1)
 	}
 
 	// ApplyCommand apply() Returns a command object to execute a apply command

@@ -1,4 +1,3 @@
-
 package xarmanta.shared
 
 import java.io.File
