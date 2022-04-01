@@ -11,7 +11,7 @@ class ConfigManager {
     fun saveContext(contxt: GitContext) {
         KotlinAsyncRunner().runAsyncIO {
             val config = openConfigFile()
-            updateRepository(config, contxt!!)
+            updateRepository(config, contxt)
             saveConfigFile(config)
         }
     }

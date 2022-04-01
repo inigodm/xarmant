@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.revplot.PlotCommit
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import xarmanta.mainwindow.model.*
 import xarmanta.mainwindow.model.GitContext
@@ -74,16 +76,29 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             .call()
     }
 
-    fun getGraph(): MutableList<Commit> {
+    fun buildListOfCommits(): MutableList<Commit> {
         val walk = PlotWalk(git.repository)
-        git.repository.refDatabase.getRefs().forEach { walk.markStart(walk.parseCommit(it.objectId)) }
+        git.repository.refDatabase.refs.forEach {
+            println(it.name)
+            walk.markStart(walk.parseCommit(it.objectId))
+        }
+        println("*******************************************************************")
+        git.branchList().call().forEach{
+            if (it.name.contains("17908")) {
+                print("----->>>>")
+            }
+            if (it.name.contains("17972")) {
+                print("----->>>>")
+            }
+            println(it.name)
+        }
         val list = JavaFxCommitList()
         list.source(walk)
         list.fillTo(Int.MAX_VALUE)
         val history = mutableListOf<Commit>()
-        list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,
-            "Not Supported", it.commitTime, mutableSetOf(), it))}
+        list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,"Not Supported", it.commitTime, mutableSetOf(), it))}
         val status = status()
+        status?.changed
         history.add(0, Commit("Uncommited",
                 "",
                 "",
@@ -104,7 +119,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     fun getChangesInCommit(commit: Commit): List<FileChanges> {
         val parent: RevCommit? = commit.plotCommit?.parents?.getOrElse(0) { commit.plotCommit!! }
         val res = if (parent == commit.plotCommit ){
-            changesInFirstCommit(commit)
+            git.diff().call()
         } else {
             changesBetweenCommits(commit.plotCommit!!.parents[0], commit.plotCommit)
         }

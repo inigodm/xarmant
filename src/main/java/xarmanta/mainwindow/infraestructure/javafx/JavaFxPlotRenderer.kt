@@ -24,7 +24,11 @@ class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
         this.cell = cell
         gc = cell.canvas!!.graphicsContext2D
         gc!!.setLineWidth(5.0);
-        paintCommit(commit, 20)
+        if (type.equals(CommitType.UNCOMMITED)) {
+            paintWorking(commit, commit?.parents?.get(0) as PlotCommit<JavaFxLane>?, 20)
+        } else {
+            paintCommit(commit, 20)
+        }
     }
     /**
      * Draw a decoration for the Ref ref at x,y

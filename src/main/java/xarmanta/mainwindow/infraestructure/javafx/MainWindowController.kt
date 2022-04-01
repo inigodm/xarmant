@@ -45,11 +45,11 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var vBox: VBox
     lateinit var btnPush: Button
     lateinit var btnPull: Button
-    lateinit var column2: TableColumn<Commit, Commit>
-    lateinit var column3: TableColumn<Commit, String>
+    lateinit var graph: TableColumn<Commit, Commit>
+    lateinit var message: TableColumn<Commit, String>
     lateinit var files: TableColumn<Commit, String>
     lateinit var filesChanges: TableColumn<FileChanges, String>
-    lateinit var table: TableView<Commit>
+    lateinit var graphic: TableView<Commit>
     lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
     lateinit var fileContent: TextFlow
@@ -68,17 +68,17 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
-        table.setFixedCellSize(25.0);
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE)
-        table.setOnMouseClicked {
-            getChangesBetween(table.selectionModel.selectedItems)
+        graphic.setFixedCellSize(25.0);
+        graphic.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE)
+        graphic.setOnMouseClicked {
+            getChangesBetween(graphic.selectionModel.selectedItems)
         }
         filesInObjectId.setOnMouseClicked {
             drawDiff(filesInObjectId.selectionModel.selectedItem)
         }
-        column2.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
-        column2.cellValueFactory = Callback { ObservableCommit(it.value) }
-        column3.cellValueFactory = PropertyValueFactory("description")
+        graph.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
+        graph.cellValueFactory = Callback { ObservableCommit(it.value) }
+        message.cellValueFactory = PropertyValueFactory("description")
         filesChanges.cellValueFactory = PropertyValueFactory("changeType")
         files.cellValueFactory = PropertyValueFactory("filename")
         recentRepos.items.addAll(getRecentOpened())
@@ -133,11 +133,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
 
     fun getChangesBetween(selectedItems: ObservableList<Commit>?) {
         runner.runLongOperation{
-            val fileChanges = when (selectedItems!!.size){
-                0 -> emptyList<FileChanges>()
-                1 -> git!!.getChangesInCommit(selectedItems[0])
-                else -> git!!.getChangesBetween(selectedItems.takeLast(1)[0], selectedItems[0])
-            }
+            val fileChanges = git!!.getChangesInCommit(selectedItems!![0])
             Platform.runLater{
                 fileContent.children.clear()
                 filesInObjectId.items.clear()
@@ -204,10 +200,10 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     fun pull(actionEvent: ActionEvent?) = runner.runLongOperation { git?.pull() }
 
     fun loadGraph() = runner.runLongOperation {
-        val commits = git?.getGraph()
+        val commits = git?.buildListOfCommits()
         Platform.runLater {
-            table.items.clear()
-            commits?.forEach { table.items.add(it) }
+            graphic.items.clear()
+            commits?.forEach { graphic.items.add(it) }
         }
     }
 
@@ -223,7 +219,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         val directoryChooser = DirectoryChooser()
         directoryChooser.initialDirectory = File(System.getProperty("user.home"))
         directoryChooser.title = title
-        return directoryChooser.showDialog(table.scene.window)
+        return directoryChooser.showDialog(graphic.scene.window)
     }
 }
 
