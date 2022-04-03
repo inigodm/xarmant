@@ -1,4 +1,4 @@
-package xarmanta.mainwindow.model
+    package xarmanta.mainwindow.model
 
 import xarmanta.mainwindow.shared.exceptions.InvalidUrl
 import java.io.File

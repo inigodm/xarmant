@@ -22,8 +22,7 @@ public abstract class XarmantAbstractPlotRenderer<TLane extends PlotLane> {
     int dotX = myLaneX - dotSize / 2 - 1;
     int dotY = (h - dotSize) / 2;
 
-    drawLines(parentCommit, h, working.getLane(), myLaneX, dotY);
-    drawPassingLanes(parentCommit, h, myLaneX);
+    drawPassingLanes(parentCommit, h);
     this.drawBoundaryDot(dotX, dotY, dotSize, dotSize);
     int textx = Math.max(myLaneX + LINE_PAD, dotX + dotSize) + 8;
     this.drawText("Working", textx + dotSize, h);
@@ -32,7 +31,7 @@ public abstract class XarmantAbstractPlotRenderer<TLane extends PlotLane> {
   protected void paintCommit(PlotCommit<TLane> commit, int h) {
     int dotSize = POINT_SIZE;
     int myLaneX = laneX(commit.getLane());
-    int dotX = myLaneX - dotSize / 2 - 1;
+    int dotX = myLaneX - dotSize / 2;
     int dotY = (h - dotSize) / 2;
 
     drawLines(commit, h, commit.getLane(), myLaneX, dotY);
@@ -41,20 +40,18 @@ public abstract class XarmantAbstractPlotRenderer<TLane extends PlotLane> {
   }
 
   private void drawLines(final PlotCommit<TLane> commit, final int h, final TLane myLane, int myLaneX, final int dotY) {
-    drawPassingLanes(commit, h, myLaneX);
+    drawPassingLanes(commit, h);
     Color myColor = this.laneColor(myLane);
     drawMergingLanes(commit, h, myLaneX, myColor);
     drawForkingOffLines(commit, h, myLaneX, myColor, dotY);
   }
 
-  private int drawPassingLanes(final PlotCommit<TLane> commit, final int h, int maxCenter) {
+  private void drawPassingLanes(final PlotCommit<TLane> commit, final int h) {
     for(PlotLane passingLane: commit.passingLanes) {
       int laneX = laneX((TLane)passingLane);
       Color color = this.laneColor((TLane)passingLane);
       this.drawLine(color, laneX, 0, laneX, h, LINE_WIDTH);
-      maxCenter = Math.max(maxCenter, laneX);
     }
-    return maxCenter;
   }
 
   private void drawForkingOffLines(final PlotCommit<TLane> commit, final int h, final int myLaneX, final Color myColor, final int dotY) {

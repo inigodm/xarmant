@@ -21,7 +21,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<StackPane fx:id="root" prefHeight="600.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xarmanta.mainwindow.infraestructure.javafx.MainWindowController">
+<StackPane fx:id="root" prefHeight="600.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xarmanta.mainwindow.infraestructure.javafx.MainWindowController">
 <VBox fx:id="vBox">
   <children>
     <MenuBar VBox.vgrow="NEVER">
@@ -63,15 +63,19 @@
       <items>
              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="261.0">
                   <children>
-                     <TableView fx:id="table" editable="true" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                       <columns>
-                         <TableColumn fx:id="column2" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="Graph" />
-                           <TableColumn fx:id="column3" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="Commit Message" />
-                       </columns>
-                        <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                        </columnResizePolicy>
-                     </TableView>
+                     <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <children>
+                           <TableView fx:id="graphic" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="200.0">
+                             <columns>
+                               <TableColumn fx:id="graph" editable="false" maxWidth="1.7976931348623157E308" minWidth="20.0" prefWidth="71.0" sortable="false" text="Graph" />
+                                 <TableColumn fx:id="message" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="193.0" sortable="false" text="Commit Message" />
+                             </columns>
+                              <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                              </columnResizePolicy>
+                           </TableView>
+                        </children>
+                     </StackPane>
                   </children>
                </AnchorPane>
              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
@@ -91,8 +95,8 @@
                               <children>
                                  <TableView fx:id="filesInObjectId" layoutX="103.0" layoutY="27.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                    <columns>
-                                       <TableColumn fx:id="filesChanges" prefWidth="10.0" text="changes" />
-                                       <TableColumn fx:id="files" prefWidth="75.0" text="Files" />
+                                       <TableColumn fx:id="filesChanges" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="changes" />
+                                       <TableColumn fx:id="files" prefWidth="262.0" text="Files" />
                                    </columns>
                                     <columnResizePolicy>
                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -106,14 +110,14 @@
                </AnchorPane>
       </items>
     </SplitPane>
-    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0">
       <children>
         <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
           <font>
             <Font size="11.0" fx:id="x3" />
           </font>
           <textFill>
-            <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
+            <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
           </textFill>
         </Label>
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />

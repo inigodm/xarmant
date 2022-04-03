@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'org.openjfx.javafxplugin' version '0.0.12'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
@@ -47,7 +47,7 @@ test {
 }
 
 javafx {
-    version = "15"
+    version = "17"
     modules = [ 'javafx.web', 'javafx.swing', 'javafx.media', 'javafx.base', 'javafx.graphics',  'javafx.controls', 'javafx.fxml' ]
 }
 

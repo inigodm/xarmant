@@ -6,6 +6,8 @@ import javafx.scene.Group
 import javafx.fxml.FXMLLoader
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.TableCell
+import org.eclipse.jgit.revplot.PlotCommit
+import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
 import xarmanta.mainwindow.model.Commit
 import java.io.IOException
 
@@ -33,7 +35,7 @@ class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Com
         mLLoader.setController(this)
         try {
             mLLoader.load<Any>()
-            renderer.paint(this, commit.plotCommit, commit.type)
+            renderer.paint(this, commit.commit as PlotCommit<JavaFxLane>, commit.type)
             setGraphic(canvas)
             val listener = InvalidationListener{
                 if (innerCommit != null) {

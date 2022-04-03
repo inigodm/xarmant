@@ -27,7 +27,7 @@ class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
         if (type.equals(CommitType.UNCOMMITED)) {
             paintWorking(commit, commit?.parents?.get(0) as PlotCommit<JavaFxLane>?, 20)
         } else {
-            paintCommit(commit, 20)
+            paintCommit(commit, 22)
         }
     }
     /**

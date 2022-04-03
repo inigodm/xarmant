@@ -99,29 +99,34 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,"Not Supported", it.commitTime, mutableSetOf(), it))}
         val status = status()
         status?.changed
+        val head = git.repository.resolve(Constants.HEAD)
+        val headCommit  = list.filter { it.name.equals(head.name) }.firstOrNull()
+        //TODO Add working which father is HEAD:
+        // is as it but withouth mergin / forking lanes
+        // Add, too, the new commit as passing lane to every commits newer than HEAD
+        println(headCommit?.fullMessage)
         history.add(0, Commit("Uncommited",
                 "",
                 "",
                 "",
                 0,
                 status!!.changed,
-                history[0].commit,
-                history[0].plotCommit,
+                headCommit,
                 CommitType.UNCOMMITED))
         return history
     }
 
     fun getChangesBetween(oldCommit: Commit, newCommit: Commit): List<FileChanges> {
-        val res = changesBetweenCommits(oldCommit.plotCommit!!, newCommit.plotCommit!!)
+        val res = changesBetweenCommits(oldCommit.commit!!, newCommit.commit!!)
         return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, oldCommit, newCommit, Entry(it)) }
     }
 
     fun getChangesInCommit(commit: Commit): List<FileChanges> {
-        val parent: RevCommit? = commit.plotCommit?.parents?.getOrElse(0) { commit.plotCommit!! }
-        val res = if (parent == commit.plotCommit ){
+        val parent: RevCommit? = commit.commit?.parents?.getOrElse(0) { commit.commit!! }
+        val res = if (parent == commit.commit ){
             git.diff().call()
         } else {
-            changesBetweenCommits(commit.plotCommit!!.parents[0], commit.plotCommit)
+            changesBetweenCommits(commit.commit!!.parents[0], commit.commit)
         }
         return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name,
                 Commit(parent!!.fullMessage, parent.name, parent.authorIdent.name,
@@ -132,7 +137,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     private fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
         return git.diff()
             .setOldTree(EmptyTreeIterator())
-            .setNewTree(getCanonicalTree(commit.plotCommit!!))
+            .setNewTree(getCanonicalTree(commit.commit!!))
             .call()
     }
 
@@ -167,8 +172,8 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
     }
 
     fun buildDiff(selectedItem: FileChanges): ChangedFile {
-        val old = getFileContentAtCommit(selectedItem.oldCommit.plotCommit!!, selectedItem.oldFilename)
-        val new = getFileContentAtCommit(selectedItem.newCommit.plotCommit!!, selectedItem.filename)
+        val old = getFileContentAtCommit(selectedItem.oldCommit.commit!!, selectedItem.oldFilename)
+        val new = getFileContentAtCommit(selectedItem.newCommit.commit!!, selectedItem.filename)
         val editList = obtainEditList(selectedItem)
         return ChangedFile(old, new, editList)
     }
