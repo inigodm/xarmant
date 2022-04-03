@@ -1,15 +1,11 @@
-package xarmanta.mainwindow.infraestructure
+package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.beans.InvalidationListener
-import javafx.beans.Observable
 import javafx.fxml.FXML
 import javafx.scene.Group
 import javafx.fxml.FXMLLoader
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.TableCell
-import javafx.scene.paint.Color
-import javafx.scene.shape.Line
-import xarmanta.mainwindow.infraestructure.jgit.JavaFxPlotRenderer
 import xarmanta.mainwindow.model.Commit
 import java.io.IOException
 

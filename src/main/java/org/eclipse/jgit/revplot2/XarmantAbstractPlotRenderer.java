@@ -12,134 +12,128 @@ import org.eclipse.jgit.revplot.PlotLane;
 import org.eclipse.jgit.revwalk.RevFlag;
 
 public abstract class XarmantAbstractPlotRenderer<TLane extends PlotLane> {
-  private static final int LANE_WIDTH = 14;
+  private static final int LINE_PAD = 7;
   private static final int LINE_WIDTH = 2;
-  private static final int LEFT_PAD = 2;
+  private static final int POINT_SIZE = 8;
+
+  protected void paintWorking(PlotCommit<TLane> working, PlotCommit<TLane> parentCommit, int h) {
+    int dotSize = POINT_SIZE * 2;
+    int myLaneX = laneX(parentCommit.getLane());
+    int dotX = myLaneX - dotSize / 2 - 1;
+    int dotY = (h - dotSize) / 2;
+
+    drawLines(parentCommit, h, working.getLane(), myLaneX, dotY);
+    drawPassingLanes(parentCommit, h, myLaneX);
+    this.drawBoundaryDot(dotX, dotY, dotSize, dotSize);
+    int textx = Math.max(myLaneX + LINE_PAD, dotX + dotSize) + 8;
+    this.drawText("Working", textx + dotSize, h);
+  }
 
   protected void paintCommit(PlotCommit<TLane> commit, int h) {
-    int dotSize = computeDotSize(h);
-    TLane myLane = commit.getLane();
-    int myLaneX = laneC(myLane);
-    Color myColor = this.laneColor(myLane);
-    int maxCenter = myLaneX;
-    PlotLane[] var11 = commit.passingLanes;
-    int nParent = var11.length;
-
-    int dotY;
-    int n;
-    for(dotY = 0; dotY < nParent; ++dotY) {
-      TLane passingLane = (TLane) var11[dotY];
-      n = laneC(passingLane);
-      Color c = this.laneColor(passingLane);
-      this.drawLine(c, n, 0, n, h, 2);
-      maxCenter = Math.max(maxCenter, n);
-    }
-
+    int dotSize = POINT_SIZE;
+    int myLaneX = laneX(commit.getLane());
     int dotX = myLaneX - dotSize / 2 - 1;
-    dotY = (h - dotSize) / 2;
-    nParent = commit.getParentCount();
-    PlotLane[] var14;
-    Color cColor;
-    int cx;
-    int ix;
-    TLane forkingOffLane;
-    int i;
-    if (nParent > 0) {
-      this.drawLine(myColor, myLaneX, h, myLaneX, (h + dotSize) / 2, 2);
-      i = (var14 = commit.mergingLanes).length;
+    int dotY = (h - dotSize) / 2;
 
-      for(n = 0; n < i; ++n) {
-        forkingOffLane = (TLane) var14[n];
-        cColor = this.laneColor((TLane) forkingOffLane);
-        cx = laneC(forkingOffLane);
-        if (Math.abs(myLaneX - cx) > 14) {
-          if (myLaneX < cx) {
-            ix = cx - 7;
-          } else {
-            ix = cx + 7;
-          }
+    drawLines(commit, h, commit.getLane(), myLaneX, dotY);
+    drawCommitPointInPosition(commit, dotSize, dotX, dotY);
+    drawTextReferences(commit, h, myLaneX, dotX);
+  }
 
-          this.drawLine(cColor, myLaneX, h / 2, ix, h / 2, 2);
-          this.drawLine(cColor, ix, h / 2, cx, h, 2);
-        } else {
-          this.drawLine(cColor, myLaneX, h / 2, cx, h, 2);
-        }
+  private void drawLines(final PlotCommit<TLane> commit, final int h, final TLane myLane, int myLaneX, final int dotY) {
+    drawPassingLanes(commit, h, myLaneX);
+    Color myColor = this.laneColor(myLane);
+    drawMergingLanes(commit, h, myLaneX, myColor);
+    drawForkingOffLines(commit, h, myLaneX, myColor, dotY);
+  }
 
-        maxCenter = Math.max(maxCenter, cx);
-      }
+  private int drawPassingLanes(final PlotCommit<TLane> commit, final int h, int maxCenter) {
+    for(PlotLane passingLane: commit.passingLanes) {
+      int laneX = laneX((TLane)passingLane);
+      Color color = this.laneColor((TLane)passingLane);
+      this.drawLine(color, laneX, 0, laneX, h, LINE_WIDTH);
+      maxCenter = Math.max(maxCenter, laneX);
     }
+    return maxCenter;
+  }
 
-    int textx;
+  private void drawForkingOffLines(final PlotCommit<TLane> commit, final int h, final int myLaneX, final Color myColor, final int dotY) {
     if (commit.getChildCount() > 0) {
-      i = (var14 = commit.forkingOffLanes).length;
-
-      for(n = 0; n < i; ++n) {
-        forkingOffLane = (TLane) var14[n];
-        cColor = this.laneColor(forkingOffLane);
-        cx = laneC(forkingOffLane);
+      int ix;
+      for(PlotLane forkingOffLane : commit.forkingOffLanes) {
+        Color cColor = this.laneColor((TLane) forkingOffLane);
+        int cx = laneX(forkingOffLane);
         if (Math.abs(myLaneX - cx) > 14) {
           if (myLaneX < cx) {
-            ix = cx - 7;
+            ix = cx - LINE_PAD;
           } else {
-            ix = cx + 7;
+            ix = cx + LINE_PAD;
           }
-
-          this.drawLine(cColor, myLaneX, h / 2, ix, h / 2, 2);
-          this.drawLine(cColor, ix, h / 2, cx, 0, 2);
+          this.drawLine(cColor, myLaneX, h / 2, ix, h / 2, LINE_WIDTH);
+          this.drawLine(cColor, ix, h / 2, cx, 0, LINE_WIDTH);
         } else {
-          this.drawLine(cColor, myLaneX, h / 2, cx, 0, 2);
+          this.drawLine(cColor, myLaneX, h / 2, cx, 0, LINE_WIDTH);
         }
-
-        maxCenter = Math.max(maxCenter, cx);
       }
-
-      textx = commit.getChildCount() - commit.forkingOffLanes.length;
+      int textx = commit.getChildCount() - commit.forkingOffLanes.length;
       if (textx > 0) {
-        this.drawLine(myColor, myLaneX, 0, myLaneX, dotY, 2);
+        this.drawLine(myColor, myLaneX, 0, myLaneX, dotY, LINE_WIDTH);
       }
     }
+  }
 
+  private void drawMergingLanes(final PlotCommit<TLane> commit, final int h, final int myLaneX, final Color myColor) {
+    if (commit.getParentCount() > 0) {
+      this.drawLine(myColor, myLaneX, h, myLaneX, h / 2, LINE_WIDTH);
+      int ix;
+      for(PlotLane mergingLane: commit.mergingLanes) {
+        Color cColor = this.laneColor((TLane) mergingLane);
+        int cx = laneX(mergingLane);
+        if (Math.abs(myLaneX - cx) > 14) {
+          if (myLaneX < cx) {
+            ix = cx - LINE_PAD;
+          } else {
+            ix = cx + LINE_PAD;
+          }
+          this.drawLine(cColor, myLaneX, h / 2, ix, h / 2, LINE_WIDTH);
+          this.drawLine(cColor, ix, h / 2, cx, h, LINE_WIDTH);
+        } else {
+          this.drawLine(cColor, myLaneX, h / 2, cx, h, LINE_WIDTH);
+        }
+      }
+    }
+  }
+
+  private void drawTextReferences(final PlotCommit<TLane> commit, final int h, final int maxCenter, final int dotX) {
+    int textx = Math.max(maxCenter + LINE_PAD, dotX) + 8;
+    for(Ref ref : commit.refs) {
+      textx += this.drawLabel(textx, h / 2, ref);
+    }
+    this.drawText(commit.getShortMessage(), textx, h);
+  }
+
+  private void drawCommitPointInPosition(final PlotCommit<TLane> commit, final int dotSize, final int dotX, final int dotY) {
     if (commit.has(RevFlag.UNINTERESTING)) {
       this.drawBoundaryDot(dotX, dotY, dotSize, dotSize);
     } else {
       this.drawCommitDot(dotX, dotY, dotSize, dotSize);
     }
-
-    textx = Math.max(maxCenter + 7, dotX + dotSize) + 8;
-    n = commit.refs.length;
-
-    for(i = 0; i < n; ++i) {
-      textx += this.drawLabel(textx + dotSize, h / 2, commit.refs[i]);
-    }
-
-    String msg = commit.getShortMessage();
-    this.drawText(msg, textx + dotSize, h);
   }
 
-  protected abstract int drawLabel(int var1, int var2, Ref var3);
+  protected abstract int drawLabel(int x, int y, Ref ref);
 
-  private static int computeDotSize(int h) {
-    int d = (int)((float)Math.min(h, 14) * 0.5F);
-    d += d & 1;
-    return d;
-  }
+  protected abstract Color laneColor(TLane lane);
 
-  protected abstract Color laneColor(TLane var1);
+  protected abstract void drawLine(Color color, int x1, int y1, int x2, int y2, int width);
 
-  protected abstract void drawLine(Color var1, int var2, int var3, int var4, int var5, int var6);
+  protected abstract void drawCommitDot(int x, int y, int w, int h);
 
-  protected abstract void drawCommitDot(int var1, int var2, int var3, int var4);
+  protected abstract void drawBoundaryDot(int x, int y, int w, int h);
 
-  protected abstract void drawBoundaryDot(int var1, int var2, int var3, int var4);
-
-  protected abstract void drawText(String var1, int var2, int var3);
+  protected abstract void drawText(String msg, int x, int y);
 
   private static int laneX(PlotLane myLane) {
     int p = myLane != null ? myLane.getPosition() : 0;
-    return 2 + 14 * p;
-  }
-
-  private static int laneC(PlotLane myLane) {
-    return laneX(myLane) + 7;
+    return 2 + 14 * p + LINE_PAD;
   }
 }

@@ -2,19 +2,21 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.9'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.30-M1'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
 group 'javafx.skeleton'
 version '1.0-SNAPSHOT'
 
 repositories {
-    mavenCentral()
-    maven { url 'http://dist.wso2.org/maven2/'}
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     flatDir {
         dirs 'lib'
     }
+    google()
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    gradlePluginPortal()
 }
 
 test {
@@ -22,17 +24,21 @@ test {
 }
 
 dependencies {
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
     testCompile group: 'io.mockk', name: 'mockk', version: '1.10.0'
-    testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.23'
-    testCompile "org.junit.jupiter:junit-jupiter-params:5.6.2"
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.25'
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation group: 'com.googlecode.javaewah.wso2', name: 'JavaEWAH', version: '0.3.2.wso2v1'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    // https://mvnrepository.com/artifact/com.googlecode.javaewah.wso2/JavaEWAH
+    //implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '6.1.0.202203080745-r'
+    //implementation "com.github.inigodm:jgit:0.11.3"
+    implementation "com.github.inigodm:JavaEWAH:JavaEWAH-1.1.12"
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: 'inigo-custom'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.4.2'
+    //implementation group: 'com.googlecode.javaewah.wso2', name: 'JavaEWAH', version: '1.1.7'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'// https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.6.0'
 
 }
 
