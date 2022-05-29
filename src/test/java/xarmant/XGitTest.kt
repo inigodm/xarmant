@@ -61,15 +61,6 @@ class XGitTest {
         jgit.add().addFilepattern(filename).call();
         jgit.commit().setMessage("Commit $filename").call();
     }
-
-    @Test
-    fun `commits are listed in desired order`() {
-        val xgit = XGit(GitContext(null, File("./test")), ConsoleMonitor()).open()
-        val commits = xgit.reverseWalkTimed()
-        commits.forEach{
-            println("${it.description} ${it.branches}")
-        }
-    }
 }
 
 fun XGit.reverseWalkTimed(): MutableList<Commit> {

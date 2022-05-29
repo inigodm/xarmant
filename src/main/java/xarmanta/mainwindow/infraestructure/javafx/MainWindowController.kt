@@ -32,6 +32,8 @@ import xarmanta.mainwindow.model.FileChanges
 import xarmanta.mainwindow.model.GitContext
 import xarmanta.mainwindow.shared.*
 import xarmanta.mainwindow.shared.git.XGit
+import xarmanta.mainwindow.shared.git.XGitDrawer
+import xarmanta.mainwindow.shared.git.XGitGraphCalculator
 import java.io.*
 
 
@@ -53,6 +55,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
     lateinit var fileContent: TextFlow
+    lateinit var xGitDrawer : XGitDrawer
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     var isAnyRecentRepo = SimpleBooleanProperty(false)
@@ -68,7 +71,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         monitor = LabelProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
-        graphic.setFixedCellSize(25.0);
+        //graphic.setFixedCellSize(25.0);
         graphic.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE)
         graphic.setOnMouseClicked {
             getChangesBetween(graphic.selectionModel.selectedItems)
@@ -76,7 +79,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         filesInObjectId.setOnMouseClicked {
             drawDiff(filesInObjectId.selectionModel.selectedItem)
         }
-        graph.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitGraphCell(plotRenderer) }
+        graph.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitCell(xGitDrawer) }
         graph.cellValueFactory = Callback { ObservableCommit(it.value) }
         message.cellValueFactory = PropertyValueFactory("description")
         filesChanges.cellValueFactory = PropertyValueFactory("changeType")
@@ -158,6 +161,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     }
 
     private fun openRepository(ctxt: GitContext) {
+        xGitDrawer = XGitDrawer()
         git = XGit(ctxt, monitor).open()
         isAnyRepoOpen.set(true)
         loadGraph()
@@ -200,10 +204,15 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     fun pull(actionEvent: ActionEvent?) = runner.runLongOperation { git?.pull() }
 
     fun loadGraph() = runner.runLongOperation {
-        val commits = git?.buildListOfCommits()
         Platform.runLater {
-            graphic.items.clear()
-            commits?.forEach { graphic.items.add(it) }
+            git?.buildListOfCommits().let { commits ->
+                graphic.items.clear()
+                xGitDrawer.initCommitsMap(commits!!)
+                commits.forEach {
+                    xGitDrawer.drawCommit(it)
+                    graphic.items.add(it)
+                }
+            }
         }
     }
 

@@ -6,12 +6,11 @@ import javafx.scene.text.Text
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revplot.PlotCommit
-import xarmanta.mainwindow.infraestructure.javafx.CommitGraphCell
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.text.Font
 import org.eclipse.jgit.revplot2.XarmantAbstractPlotRenderer
 import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
-import xarmanta.mainwindow.model.CommitType
+import xarmanta.mainwindow.model.Type
 
 
 class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
@@ -20,11 +19,11 @@ class JavaFxPlotRenderer() : XarmantAbstractPlotRenderer<JavaFxLane>() {
     var gc : GraphicsContext? = null
     var color : Color = BLACK
 
-    fun paint(cell: CommitGraphCell, commit: PlotCommit<JavaFxLane>?, type: CommitType) {
+    fun paint(cell: CommitGraphCell, commit: PlotCommit<JavaFxLane>?, type: Type) {
         this.cell = cell
         gc = cell.canvas!!.graphicsContext2D
         gc!!.setLineWidth(5.0);
-        if (type.equals(CommitType.UNCOMMITED)) {
+        if (type.equals(Type.WIP)) {
             paintWorking(commit, commit?.parents?.get(0) as PlotCommit<JavaFxLane>?, 20)
         } else {
             paintCommit(commit, 22)

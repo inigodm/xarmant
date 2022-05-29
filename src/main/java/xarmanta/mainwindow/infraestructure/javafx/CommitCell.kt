@@ -1,20 +1,19 @@
 package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.beans.InvalidationListener
+import javafx.beans.Observable
 import javafx.fxml.FXML
-import javafx.scene.Group
 import javafx.fxml.FXMLLoader
+import javafx.scene.Group
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.TableCell
-import org.eclipse.jgit.revplot.PlotCommit
-import xarmanta.mainwindow.infraestructure.jgit.JavaFxLane
+import javafx.scene.paint.Color
 import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.shared.git.JavaFXShapeDrawer
+import xarmanta.mainwindow.shared.git.XGitDrawer
 import java.io.IOException
 
-/**
- * Celdas de la grafica en el tableview
- */
-class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Commit>() {
+class CommitCell(var drawer: XGitDrawer) :  TableCell<Commit, Commit>() {
     @FXML
     var group: Group? = null
     @FXML
@@ -23,28 +22,30 @@ class CommitGraphCell(val renderer : JavaFxPlotRenderer) : TableCell<Commit, Com
     private var mLLoader = FXMLLoader(javaClass.getResource("/ListCell.fxml"))
 
     override fun updateItem(commit: Commit?, empty: Boolean) {
-        super.updateItem(commit, empty);
+        super.updateItem(commit, empty)
         if (commit == null) {
             graphic = null;
             return;
         }
-
         mLLoader = FXMLLoader(javaClass.getResource("/ListCell.fxml"))
         mLLoader.setController(this)
         try {
             mLLoader.load<Any>()
-            renderer.paint(this, commit.commit as PlotCommit<JavaFxLane>, commit.type)
-            setGraphic(canvas)
-            val listener = InvalidationListener{
-                if (item != null) {
-                    updateItem(item, true)
-                }
-            }
-            canvas!!.widthProperty().addListener(listener);
-            canvas!!.heightProperty().addListener(listener);
+            JavaFXShapeDrawer(canvas!!.graphicsContext2D).drawCell(commit)
+            graphic = canvas
+            refreshInvalidationListener()
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
 
+    private fun refreshInvalidationListener() {
+        val listener = InvalidationListener {
+            if (item != null) {
+                updateItem(item, true)
+            }
+        }
+        canvas!!.widthProperty().addListener(listener);
+        canvas!!.heightProperty().addListener(listener);
     }
 }

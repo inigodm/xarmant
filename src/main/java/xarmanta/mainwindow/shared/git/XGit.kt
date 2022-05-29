@@ -23,7 +23,6 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.revplot.PlotCommit
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import xarmanta.mainwindow.model.*
 import xarmanta.mainwindow.model.GitContext
@@ -76,44 +75,8 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             .call()
     }
 
-    fun buildListOfCommits(): MutableList<Commit> {
-        val walk = PlotWalk(git.repository)
-        git.repository.refDatabase.refs.forEach {
-            println(it.name)
-            walk.markStart(walk.parseCommit(it.objectId))
-        }
-        println("*******************************************************************")
-        git.branchList().call().forEach{
-            if (it.name.contains("17908")) {
-                print("----->>>>")
-            }
-            if (it.name.contains("17972")) {
-                print("----->>>>")
-            }
-            println(it.name)
-        }
-        val list = JavaFxCommitList()
-        list.source(walk)
-        list.fillTo(Int.MAX_VALUE)
-        val history = mutableListOf<Commit>()
-        list.forEach { history.add(Commit(it.fullMessage, it.name, it.authorIdent.name,"Not Supported", it.commitTime, mutableSetOf(), it))}
-        val status = status()
-        status?.changed
-        val head = git.repository.resolve(Constants.HEAD)
-        val headCommit  = list.filter { it.name.equals(head.name) }.firstOrNull()
-        //TODO Add working which father is HEAD:
-        // is as it but withouth mergin / forking lanes
-        // Add, too, the new commit as passing lane to every commits newer than HEAD
-        println(headCommit?.fullMessage)
-        history.add(0, Commit("Uncommited",
-                "",
-                "",
-                "",
-                0,
-                status!!.changed,
-                headCommit,
-                CommitType.UNCOMMITED))
-        return history
+    fun buildListOfCommits(): List<Commit> {
+        return XGitGraphCalculator().buildCommits(git)
     }
 
     fun getChangesBetween(oldCommit: Commit, newCommit: Commit): List<FileChanges> {
@@ -129,8 +92,7 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
             changesBetweenCommits(commit.commit!!.parents[0], commit.commit)
         }
         return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name,
-                Commit(parent!!.fullMessage, parent.name, parent.authorIdent.name,
-                        "Not Cupported", parent.commitTime, mutableSetOf(), parent),
+                commit.parents.getOrElse(0) { commit },
                 commit, Entry(it)) }
     }
 

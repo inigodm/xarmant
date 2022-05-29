@@ -3,10 +3,11 @@
 <?import javafx.scene.Group?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.AnchorPane?>
+
 <Group fx:id="group" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-                    <AnchorPane minHeight="30.0" minWidth="0.0" prefHeight="100.0" prefWidth="30.0">
+                    <AnchorPane minWidth="0.0">
                         <children>
-                            <Canvas fx:id="canvas" height="30.0" width="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                            <Canvas fx:id="canvas" height="20" width="100" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                         </children>
                     </AnchorPane>
-                </Group>
+</Group>
