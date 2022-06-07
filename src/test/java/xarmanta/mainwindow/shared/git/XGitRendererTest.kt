@@ -9,6 +9,9 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import xarmanta.mainwindow.application.graph.ShapeDrawer
+import xarmanta.mainwindow.application.graph.XGitGraphCalculator
+import xarmanta.mainwindow.application.graph.XGitRenderer
 import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.model.DrawableItem
 import xarmanta.mainwindow.model.Type
@@ -18,17 +21,17 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class XGitDrawerTest {
+class XGitRendererTest {
     lateinit var jgit: Git
     lateinit var shapeDrawer: ShapeDrawer
     lateinit var printer: Printer
-    lateinit var drawer: XGitDrawer
+    lateinit var drawer: XGitRenderer
 
     @BeforeEach
     fun setUp() {
         printer = spyk(Printer())
         shapeDrawer = spyk(TestShapeDrawer(printer))
-        drawer = XGitDrawer()
+        drawer = XGitRenderer()
     }
 
     @Test
@@ -36,7 +39,7 @@ class XGitDrawerTest {
         createRepoOne()
         val graph = XGitGraphCalculator().buildCommits(jgit)
 
-        drawer.drawGraph(graph)
+        drawer.renderGraph(graph)
 
         assertThat(graph[0].graphic).isEqualTo(listOf(DrawableItem(Type.COMMIT, 1.0, 1.0, 0.0, 0.0)))
     }
@@ -46,7 +49,7 @@ class XGitDrawerTest {
         createRepoTwo()
         val graph = XGitGraphCalculator().buildCommits(jgit)
 
-        drawer.drawGraph(graph)
+        drawer.renderGraph(graph)
 
         assertThat(graph[0].graphic).isEqualTo(
             listOf(
@@ -67,7 +70,7 @@ class XGitDrawerTest {
         createRepoForking()
         val graph = XGitGraphCalculator().buildCommits(jgit)
 
-        drawer.drawGraph(graph)
+        drawer.renderGraph(graph)
 
         assertThat(graph[0].graphic).isEqualTo(
             listOf(
@@ -97,7 +100,7 @@ class XGitDrawerTest {
         createRepoForkingMerking()
         val graph = XGitGraphCalculator().buildCommits(jgit)
 
-        drawer.drawGraph(graph)
+        drawer.renderGraph(graph)
 
         assertThat(graph[0].graphic).isEqualTo(
             listOf(
@@ -139,7 +142,7 @@ class XGitDrawerTest {
         createRepoForManyForking()
         val graph = XGitGraphCalculator().buildCommits(jgit)
 
-        drawer.drawGraph(graph)
+        drawer.renderGraph(graph)
 
         assertThat(graph[0].graphic).isEqualTo(
             listOf(

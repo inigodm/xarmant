@@ -1,27 +1,27 @@
-package xarmanta.mainwindow.shared.git
+package xarmanta.mainwindow.application.graph
 
 import xarmanta.mainwindow.model.Commit
 
-class XGitDrawer {
+class XGitRenderer {
     // commits que han de ser dibujados y que no sabemos cuandolo seran (parents de dibujados)
     val commitsMap: MutableMap<String, Commit> = mutableMapOf()
     val activeCommits: MutableList<Commit> = mutableListOf()
 
-    fun drawGraph(commits: List<Commit>) {
+    fun renderGraph(commits: List<Commit>) {
         initCommitsMap(commits)
         commits.forEach {
-            drawCommit(it)
+            renderCommit(it)
         }
     }
 
-    fun drawCommit(commit: Commit) {
-        val commitX = drawTopLines(commit)
-        drawCommitInGraph(commit, commitX)
+    fun renderCommit(commit: Commit) {
+        val commitX = renderTopLines(commit)
+        renderCommitInGraph(commit, commitX)
         setCommitAsTreated(commit)
-        drawBottomLines(commit)
+        renderBottomLines(commit)
     }
 
-    private fun drawTopLines(commit: Commit): Double {
+    private fun renderTopLines(commit: Commit): Double {
         var x = 1.0
         var commitX = 0.0
         var finalX = 0.0
@@ -45,7 +45,7 @@ class XGitDrawer {
         return if (commitX == 0.0) x else commitX
     }
 
-    private fun drawBottomLines(commit: Commit) {
+    private fun renderBottomLines(commit: Commit) {
         var x = 1.0
         var commitX = 0.0
         var sonCommit : Commit? = null
@@ -91,7 +91,7 @@ class XGitDrawer {
         }
     }
 
-    private fun drawCommitInGraph(commit: Commit, commitX: Double) {
+    private fun renderCommitInGraph(commit: Commit, commitX: Double) {
         commit.addCommit(commitX, 1.0)
     }
 }

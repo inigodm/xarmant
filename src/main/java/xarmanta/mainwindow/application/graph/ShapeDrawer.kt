@@ -1,4 +1,4 @@
-package xarmanta.mainwindow.shared.git
+package xarmanta.mainwindow.application.graph
 
 import javafx.scene.paint.Color
 import xarmanta.mainwindow.model.Commit

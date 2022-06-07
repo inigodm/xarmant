@@ -7,6 +7,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import xarmanta.mainwindow.application.graph.XGitGraphCalculator
 import xarmanta.mainwindow.model.Type
 import java.io.File
 import java.nio.file.Files

@@ -1,14 +1,12 @@
-package xarmanta.mainwindow.shared.git
+package xarmanta.mainwindow.infraestructure.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revplot.PlotWalk
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
-import xarmanta.mainwindow.infraestructure.XarmantProgressMonitor
-import xarmanta.mainwindow.infraestructure.jgit.JavaFxCommitList
+import xarmanta.mainwindow.infraestructure.javafx.XarmantProgressMonitor
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
@@ -22,10 +20,9 @@ import java.nio.charset.StandardCharsets
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
-import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import xarmanta.mainwindow.model.*
-import xarmanta.mainwindow.model.GitContext
+import xarmanta.mainwindow.application.graph.XGitGraphCalculator
 
 
 // Clase para wrapear JGit
@@ -133,11 +130,11 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         }
     }
 
-    fun buildDiff(selectedItem: FileChanges): ChangedFile {
+    fun buildDiff(selectedItem: FileChanges): DiffFile {
         val old = getFileContentAtCommit(selectedItem.oldCommit.commit!!, selectedItem.oldFilename)
         val new = getFileContentAtCommit(selectedItem.newCommit.commit!!, selectedItem.filename)
         val editList = obtainEditList(selectedItem)
-        return ChangedFile(old, new, editList)
+        return DiffFile(old, new, editList)
     }
 
     private fun obtainEditList(selectedItem: FileChanges): EditList {

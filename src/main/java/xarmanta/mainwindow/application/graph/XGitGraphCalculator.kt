@@ -1,4 +1,4 @@
-package xarmanta.mainwindow.shared.git
+package xarmanta.mainwindow.application.graph
 
 import javafx.scene.paint.Color
 import org.eclipse.jgit.api.Git
@@ -20,10 +20,13 @@ class XGitGraphCalculator {
         initStashList(git)
         var response = mutableListOf<Commit>()
         git.log().all().call().take(depth).forEach { buildCommitAndStashes(it, response) }
+        val xGitRenderer = XGitRenderer()
+        xGitRenderer.initCommitsMap(response)
         response.forEach { commit ->
             commit.lines.addAll(createLinesForCommit(commit))
             commit.parents.addAll(findCommitsForAllParents(commit.commit!!, response))
             commit.parents.forEach { it.sons.add(commit) }
+            xGitRenderer.renderCommit(commit)
         }
         response = response.sortedByDescending { it.commitTime }.toMutableList()
         addWIP(git, response)

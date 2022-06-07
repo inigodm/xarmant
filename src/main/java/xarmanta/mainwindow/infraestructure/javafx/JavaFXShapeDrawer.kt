@@ -1,9 +1,10 @@
-package xarmanta.mainwindow.shared.git
+package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
 import xarmanta.mainwindow.model.Commit
 import xarmanta.mainwindow.model.Type
+import xarmanta.mainwindow.application.graph.ShapeDrawer
 
 class JavaFXShapeDrawer(var gc : GraphicsContext) : ShapeDrawer {
     val LINE_GAP = 10.0

@@ -2,13 +2,9 @@ package xarmant
 
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import xarmant.mainwindow.infraestructure.ConsoleMonitor
 import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.model.GitContext
-import xarmanta.mainwindow.shared.git.XGit
-import java.io.File
+import xarmanta.mainwindow.infraestructure.git.XGit
 import java.nio.file.Files
 import java.nio.file.Path
 

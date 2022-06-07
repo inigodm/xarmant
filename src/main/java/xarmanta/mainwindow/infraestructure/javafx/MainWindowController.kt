@@ -21,28 +21,24 @@ import javafx.util.Callback
 import org.eclipse.jgit.diff.Edit
 import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.errors.RepositoryNotFoundException
-import xarmanta.mainwindow.shared.ConfigManager
-import xarmanta.mainwindow.infraestructure.LabelProgressMonitor
+import xarmanta.mainwindow.application.config.ConfigManager
 //import org.fxmisc.richtext.CodeArea
 import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.model.ConfigFile
+import xarmanta.mainwindow.application.config.ConfigFile
 import java.net.URL
 
 import xarmanta.mainwindow.model.FileChanges
-import xarmanta.mainwindow.model.GitContext
+import xarmanta.mainwindow.infraestructure.git.GitContext
 import xarmanta.mainwindow.shared.*
-import xarmanta.mainwindow.shared.git.XGit
-import xarmanta.mainwindow.shared.git.XGitDrawer
-import xarmanta.mainwindow.shared.git.XGitGraphCalculator
+import xarmanta.mainwindow.infraestructure.git.XGit
 import java.io.*
 
 
-class MainWindowController(val configManager: ConfigManager = ConfigManager(), val plotRenderer: JavaFxPlotRenderer = JavaFxPlotRenderer()) {
+class MainWindowController(val configManager: ConfigManager = ConfigManager()) {
     // Unop de estos dos, o el XGit o su contexto, sobran, no tengo claro aun cual
     var git : XGit? = null
     var context: GitContext? = null
     //FXML bindings
-    //lateinit var console: TextFlow
     lateinit var root: StackPane
     lateinit var vBox: VBox
     lateinit var btnPush: Button
@@ -55,31 +51,30 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     lateinit var filesInObjectId: TableView<FileChanges>
     lateinit var recentRepos: Menu
     lateinit var fileContent: TextFlow
-    lateinit var xGitDrawer : XGitDrawer
     // Observable para saber si hay, o no, algun repo de git abierto en la app
     var isAnyRepoOpen = SimpleBooleanProperty(false)
     var isAnyRecentRepo = SimpleBooleanProperty(false)
     // Cosas que se levantan en el progressiondicator de las tareas largas
     val pi = ProgressIndicator(-1.0)
     val blockingLabel = Label("")
-    private var monitor = LabelProgressMonitor(blockingLabel)
+    private var monitor = XarmantProgressMonitor(blockingLabel)
     val box = HBox(pi, blockingLabel)
     lateinit var runner: LongOperationRunner
 
     @FXML
     fun initialize() {
-        monitor = LabelProgressMonitor(blockingLabel)
+        monitor = XarmantProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
         //graphic.setFixedCellSize(25.0);
-        graphic.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE)
+        graphic.selectionModel.selectionMode = SelectionMode.MULTIPLE
         graphic.setOnMouseClicked {
             getChangesBetween(graphic.selectionModel.selectedItems)
         }
         filesInObjectId.setOnMouseClicked {
             drawDiff(filesInObjectId.selectionModel.selectedItem)
         }
-        graph.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitCell(xGitDrawer) }
+        graph.cellFactory = Callback<TableColumn<Commit, Commit>, TableCell<Commit, Commit>> { CommitCell() }
         graph.cellValueFactory = Callback { ObservableCommit(it.value) }
         message.cellValueFactory = PropertyValueFactory("description")
         filesChanges.cellValueFactory = PropertyValueFactory("changeType")
@@ -161,7 +156,6 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
     }
 
     private fun openRepository(ctxt: GitContext) {
-        xGitDrawer = XGitDrawer()
         git = XGit(ctxt, monitor).open()
         isAnyRepoOpen.set(true)
         loadGraph()
@@ -207,9 +201,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager(), v
         Platform.runLater {
             git?.buildListOfCommits().let { commits ->
                 graphic.items.clear()
-                xGitDrawer.initCommitsMap(commits!!)
-                commits.forEach {
-                    xGitDrawer.drawCommit(it)
+                commits?.forEach {
                     graphic.items.add(it)
                 }
             }

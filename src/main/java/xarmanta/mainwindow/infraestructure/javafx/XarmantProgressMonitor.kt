@@ -1,18 +1,13 @@
-package xarmanta.mainwindow.infraestructure
+package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.application.Platform
 import javafx.scene.control.Label
 import org.eclipse.jgit.lib.BatchingProgressMonitor
 
 /**
- * trataba de evitar la dependencia de javaFX...
- */
-abstract class XarmantProgressMonitor : BatchingProgressMonitor()
-
-/**
  * Label actualizable que muestra el progreso de las tareas largas
  */
-class LabelProgressMonitor(val label: Label) : XarmantProgressMonitor() {
+class XarmantProgressMonitor(val label: Label) : BatchingProgressMonitor() {
 
     override fun onUpdate(taskName: String, workCurr: Int) {
         val s = StringBuilder()

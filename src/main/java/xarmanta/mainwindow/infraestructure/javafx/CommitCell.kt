@@ -1,19 +1,15 @@
 package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.beans.InvalidationListener
-import javafx.beans.Observable
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.scene.Group
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.TableCell
-import javafx.scene.paint.Color
 import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.shared.git.JavaFXShapeDrawer
-import xarmanta.mainwindow.shared.git.XGitDrawer
 import java.io.IOException
 
-class CommitCell(var drawer: XGitDrawer) :  TableCell<Commit, Commit>() {
+class CommitCell :  TableCell<Commit, Commit>() {
     @FXML
     var group: Group? = null
     @FXML
