@@ -66,7 +66,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager()) {
         monitor = XarmantProgressMonitor(blockingLabel)
         blockingLabel.text = "Wait while process ends..."
         box.alignment = Pos.CENTER
-        //graphic.setFixedCellSize(25.0);
+        graphic.fixedCellSize = 25.0;
         graphic.selectionModel.selectionMode = SelectionMode.MULTIPLE
         graphic.setOnMouseClicked {
             getChangesBetween(graphic.selectionModel.selectedItems)
