@@ -1,6 +1,7 @@
 package xarmanta.mainwindow.model
 
 import javafx.scene.paint.Color
+import xarmanta.mainwindow.model.commit.Type
 
 data class DrawableItem(val type: Type,
                         val fromX: Double,

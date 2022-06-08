@@ -12,9 +12,9 @@ import org.junit.jupiter.api.TestInstance
 import xarmanta.mainwindow.application.graph.ShapeDrawer
 import xarmanta.mainwindow.application.graph.XGitGraphCalculator
 import xarmanta.mainwindow.application.graph.XGitRenderer
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 import xarmanta.mainwindow.model.DrawableItem
-import xarmanta.mainwindow.model.Type
+import xarmanta.mainwindow.model.commit.Type
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

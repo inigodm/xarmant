@@ -1,14 +1,15 @@
-package xarmanta.mainwindow.model
+package xarmanta.mainwindow.model.commit
 
 import javafx.scene.paint.Color
 import org.eclipse.jgit.revwalk.RevCommit
+import xarmanta.mainwindow.model.DrawableItem
 
 class Commit {
     val commit: RevCommit?
     val description: String
     val username: String
     val sha: String
-    var branch: String
+    var branches: MutableList<String> = mutableListOf()
     val commitTime: Int
     val type : Type
     val lines: MutableList<GitLine> = mutableListOf()
@@ -23,7 +24,6 @@ class Commit {
         description = commit.fullMessage
         username = commit.authorIdent.name
         sha = commit.name
-        branch = "Not supported"
         commitTime = commit.commitTime
         type = typeOfCommit
         parents = parent.toMutableList()
@@ -34,7 +34,6 @@ class Commit {
         description = "WIP"
         username = ""
         sha = name
-        branch = ""
         commitTime = Int.MAX_VALUE
         type = Type.WIP
         parents = listOf(parent).mapNotNull { it }.toMutableList()
@@ -60,7 +59,8 @@ class Commit {
 data class GitLine(val color: Color,
                    val from: Commit,
                    val to: Commit,
-                   val type: Type = Type.COMMIT)
+                   val type: Type = Type.COMMIT
+)
 
 enum class Type {
     COMMIT, STASH, WIP, LINE

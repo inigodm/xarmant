@@ -6,7 +6,7 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Group
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.TableCell
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 import java.io.IOException
 
 class CommitCell :  TableCell<Commit, Commit>() {

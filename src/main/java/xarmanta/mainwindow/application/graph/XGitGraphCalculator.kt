@@ -2,12 +2,13 @@ package xarmanta.mainwindow.application.graph
 
 import javafx.scene.paint.Color
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
-import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.model.GitLine
-import xarmanta.mainwindow.model.Type
+import xarmanta.mainwindow.model.commit.Commit
+import xarmanta.mainwindow.model.commit.GitLine
+import xarmanta.mainwindow.model.commit.Type
 import java.util.*
 
 class XGitGraphCalculator {
@@ -27,6 +28,8 @@ class XGitGraphCalculator {
             commit.parents.addAll(findCommitsForAllParents(commit.commit!!, response))
             commit.parents.forEach { it.sons.add(commit) }
             xGitRenderer.renderCommit(commit)
+            commit.branches.addAll(git.branchList().setListMode(ListBranchCommand.ListMode.ALL).setContains(commit.sha).call().map { it.name })
+            commit.branches.forEach (System.out::println)
         }
         response = response.sortedByDescending { it.commitTime }.toMutableList()
         addWIP(git, response)

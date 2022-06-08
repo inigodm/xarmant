@@ -2,8 +2,8 @@ package xarmanta.mainwindow.infraestructure.javafx
 
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
-import xarmanta.mainwindow.model.Commit
-import xarmanta.mainwindow.model.Type
+import xarmanta.mainwindow.model.commit.Commit
+import xarmanta.mainwindow.model.commit.Type
 import xarmanta.mainwindow.application.graph.ShapeDrawer
 
 class JavaFXShapeDrawer(var gc : GraphicsContext) : ShapeDrawer {
@@ -40,7 +40,7 @@ class JavaFXShapeDrawer(var gc : GraphicsContext) : ShapeDrawer {
         gc.strokeLine(fromX * LINE_GAP, yo * H_MAX, toX * LINE_GAP, yf * H_MAX)
     }
 
-    override fun drawMergingLine( commit: Commit, fromX: Double, toX: Double, yo: Double, yf: Double, color: Color) {
+    override fun drawMergingLine(commit: Commit, fromX: Double, toX: Double, yo: Double, yf: Double, color: Color) {
         gc.stroke = color
         gc.strokeLine(fromX * LINE_GAP, yo * H_MAX, toX * LINE_GAP, yf * H_MAX)
     }

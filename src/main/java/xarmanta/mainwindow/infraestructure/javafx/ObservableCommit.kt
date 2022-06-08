@@ -3,7 +3,7 @@ package xarmanta.mainwindow.infraestructure.javafx
 import javafx.beans.InvalidationListener
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableObjectValue
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 
 // Se encesitaba para el tableview... realmente no necesito que sean observables, pero yo que se....
 class ObservableCommit(val commit: Commit): ObservableObjectValue<Commit> {

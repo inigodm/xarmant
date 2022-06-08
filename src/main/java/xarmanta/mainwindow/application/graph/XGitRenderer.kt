@@ -1,6 +1,6 @@
 package xarmanta.mainwindow.application.graph
 
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 
 class XGitRenderer {
     // commits que han de ser dibujados y que no sabemos cuandolo seran (parents de dibujados)

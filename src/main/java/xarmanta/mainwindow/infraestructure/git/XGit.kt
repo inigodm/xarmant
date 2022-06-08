@@ -23,6 +23,9 @@ import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import xarmanta.mainwindow.model.*
 import xarmanta.mainwindow.application.graph.XGitGraphCalculator
+import xarmanta.mainwindow.model.commit.Commit
+import xarmanta.mainwindow.model.modifiedFiles.Entry
+import xarmanta.mainwindow.model.modifiedFiles.FileModified
 
 
 // Clase para wrapear JGit
@@ -76,21 +79,22 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         return XGitGraphCalculator().buildCommits(git)
     }
 
-    fun getChangesBetween(oldCommit: Commit, newCommit: Commit): List<FileChanges> {
+    fun getChangesBetween(oldCommit: Commit, newCommit: Commit): List<FileModified> {
         val res = changesBetweenCommits(oldCommit.commit!!, newCommit.commit!!)
-        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name, oldCommit, newCommit, Entry(it)) }
+        return res!!.map { FileModified(it.oldPath, it.newPath, it.changeType.name, oldCommit, newCommit, Entry(it)) }
     }
 
-    fun getChangesInCommit(commit: Commit): List<FileChanges> {
+    fun getChangesInCommit(commit: Commit): List<FileModified> {
         val parent: RevCommit? = commit.commit?.parents?.getOrElse(0) { commit.commit!! }
         val res = if (parent == commit.commit ){
             git.diff().call()
         } else {
             changesBetweenCommits(commit.commit!!.parents[0], commit.commit)
         }
-        return res!!.map { FileChanges(it.oldPath, it.newPath, it.changeType.name,
+        return res!!.map { FileModified(it.oldPath, it.newPath, it.changeType.name,
                 commit.parents.getOrElse(0) { commit },
-                commit, Entry(it)) }
+                commit, Entry(it)
+        ) }
     }
 
     private fun changesInFirstCommit(commit: Commit): List<DiffEntry>? {
@@ -130,14 +134,14 @@ class XGit(val config: GitContext, val monitor: XarmantProgressMonitor) {
         }
     }
 
-    fun buildDiff(selectedItem: FileChanges): DiffFile {
+    fun buildDiff(selectedItem: FileModified): DiffFile {
         val old = getFileContentAtCommit(selectedItem.oldCommit.commit!!, selectedItem.oldFilename)
         val new = getFileContentAtCommit(selectedItem.newCommit.commit!!, selectedItem.filename)
         val editList = obtainEditList(selectedItem)
         return DiffFile(old, new, editList)
     }
 
-    private fun obtainEditList(selectedItem: FileChanges): EditList {
+    private fun obtainEditList(selectedItem: FileModified): EditList {
         DiffFormatter(null).use { formatter ->
             formatter.setRepository(git.repository)
             val fileHeader = formatter.toFileHeader(selectedItem.entry.entry)

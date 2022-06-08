@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import xarmanta.mainwindow.application.graph.XGitGraphCalculator
-import xarmanta.mainwindow.model.Type
+import xarmanta.mainwindow.model.commit.Type
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

@@ -3,7 +3,7 @@ package xarmant
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 import xarmanta.mainwindow.infraestructure.git.XGit
 import java.nio.file.Files
 import java.nio.file.Path

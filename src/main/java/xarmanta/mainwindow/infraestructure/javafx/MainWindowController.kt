@@ -23,11 +23,11 @@ import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import xarmanta.mainwindow.application.config.ConfigManager
 //import org.fxmisc.richtext.CodeArea
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 import xarmanta.mainwindow.application.config.ConfigFile
 import java.net.URL
 
-import xarmanta.mainwindow.model.FileChanges
+import xarmanta.mainwindow.model.modifiedFiles.FileModified
 import xarmanta.mainwindow.infraestructure.git.GitContext
 import xarmanta.mainwindow.shared.*
 import xarmanta.mainwindow.infraestructure.git.XGit
@@ -46,9 +46,9 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager()) {
     lateinit var graph: TableColumn<Commit, Commit>
     lateinit var message: TableColumn<Commit, String>
     lateinit var files: TableColumn<Commit, String>
-    lateinit var filesChanges: TableColumn<FileChanges, String>
+    lateinit var filesChanges: TableColumn<FileModified, String>
     lateinit var graphic: TableView<Commit>
-    lateinit var filesInObjectId: TableView<FileChanges>
+    lateinit var filesInObjectId: TableView<FileModified>
     lateinit var recentRepos: Menu
     lateinit var fileContent: TextFlow
     // Observable para saber si hay, o no, algun repo de git abierto en la app
@@ -93,7 +93,7 @@ class MainWindowController(val configManager: ConfigManager = ConfigManager()) {
         }
     }
 
-    fun drawDiff(selectedItem: FileChanges?) {
+    fun drawDiff(selectedItem: FileModified?) {
         if (selectedItem != null) {
             runner.runLongOperation {
                 val drawable = git!!.buildDiff(selectedItem)

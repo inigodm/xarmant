@@ -1,7 +1,7 @@
 package xarmanta.mainwindow.application.graph
 
 import javafx.scene.paint.Color
-import xarmanta.mainwindow.model.Commit
+import xarmanta.mainwindow.model.commit.Commit
 
 interface ShapeDrawer {
     fun drawCell(commit: Commit)
