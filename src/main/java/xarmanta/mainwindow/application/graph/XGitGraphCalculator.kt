@@ -27,9 +27,10 @@ class XGitGraphCalculator {
             commit.lines.addAll(createLinesForCommit(commit))
             commit.parents.addAll(findCommitsForAllParents(commit.commit!!, response))
             commit.parents.forEach { it.sons.add(commit) }
+            commit.addBranches(git.branchList().setListMode(ListBranchCommand.ListMode.ALL).setContains(commit.sha).call().map { it.name })
             xGitRenderer.renderCommit(commit)
-            commit.branches.addAll(git.branchList().setListMode(ListBranchCommand.ListMode.ALL).setContains(commit.sha).call().map { it.name })
-            commit.branches.forEach (System.out::println)
+            //commit.localBranches.forEach (System.out::println)
+            //commit.remoteBranches.forEach (System.out::println)
         }
         response = response.sortedByDescending { it.commitTime }.toMutableList()
         addWIP(git, response)

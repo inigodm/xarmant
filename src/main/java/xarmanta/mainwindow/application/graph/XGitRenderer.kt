@@ -1,6 +1,7 @@
 package xarmanta.mainwindow.application.graph
 
 import xarmanta.mainwindow.model.commit.Commit
+import xarmanta.mainwindow.model.commit.getColor
 
 class XGitRenderer {
     // commits que han de ser dibujados y que no sabemos cuandolo seran (parents de dibujados)
@@ -38,7 +39,7 @@ class XGitRenderer {
                 }
             }
             //sino es el commit que estamos dibujando solo se pinta la linea que segfuira para abajo
-            commit.addLine(x, finalX, 0.0, 0.5) //it
+            commit.addLine(x, finalX, 0.0, 0.5, color = getColor(commit.sons.firstOrNull())) //it
             //movemos a la derecha
             x += 1.0
         }
@@ -63,7 +64,7 @@ class XGitRenderer {
                     }
                 }
             }
-            commit.addLine(mergingX, x, 0.5, 1.0) //it
+            commit.addLine(mergingX, x, 0.5, 1.0, color = getColor(commit.parents.firstOrNull())) //it
             x += 1.0
         }
     }

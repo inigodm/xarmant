@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.12'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.20'
 }
 
 group 'javafx.skeleton'
@@ -29,17 +29,11 @@ dependencies {
     testCompile 'com.willowtreeapps.assertk:assertk-jvm:0.25'
     testCompile 'org.junit.jupiter:junit-jupiter-params:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    // https://mvnrepository.com/artifact/com.googlecode.javaewah.wso2/JavaEWAH
-    //implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '6.1.0.202203080745-r'
-    //implementation "com.github.inigodm:jgit:0.11.3"
     implementation "com.github.inigodm:JavaEWAH:JavaEWAH-1.1.12"
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: 'inigo-custom'
-    //implementation group: 'com.googlecode.javaewah.wso2', name: 'JavaEWAH', version: '1.1.7'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'// https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.6.0'
-
 }
 
 test {

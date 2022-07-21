@@ -15,16 +15,16 @@ class JavaFXShapeDrawer(var gc : GraphicsContext) : ShapeDrawer {
         commit.graphic.forEach {
             when(it.type) {
                 Type.LINE -> {
-                    drawForkingLine(commit, it.fromX, it.toX, it.fromY, it.toY, Color.BLACK)
+                    drawForkingLine(commit, it.fromX, it.toX, it.fromY, it.toY, it.color)
                 }
                 Type.COMMIT -> {
-                    drawCommit(commit, it.fromX, it.fromY, Color.BLACK)
+                    drawCommit(commit, it.fromX, it.fromY, it.color)
                 }
                 Type.STASH -> {
-                    drawStash(commit, it.fromX, it.fromY, Color.BLACK)
+                    drawStash(commit, it.fromX, it.fromY, it.color)
                 }
                 Type.WIP -> {
-                    drawCommit(commit, it.fromX, it.fromY, Color.BLACK)
+                    drawCommit(commit, it.fromX, it.fromY, it.color)
                 }
             }
         }
